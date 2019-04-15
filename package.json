@@ -1,0 +1,39 @@
+{
+  "name": "codeck",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "parcel build src/main.js -d build/ -o main.js",
+    "watch": "parcel watch src/main.js -d build/ -o main.js",
+    "test": "jest"
+  },
+  "repository": "git+https://github.com/eric7578/codeck.git",
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eric7578/codeck/issues"
+  },
+  "homepage": "https://github.com/eric7578/codeck#readme",
+  "devDependencies": {
+    "@babel/core": "^7.4.3",
+    "@babel/plugin-transform-runtime": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "@babel/preset-react": "^7.0.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.17",
+    "@fortawesome/free-solid-svg-icons": "^5.8.1",
+    "@fortawesome/react-fontawesome": "^0.1.4",
+    "axios": "^0.18.0",
+    "babel-plugin-styled-components": "^1.10.0",
+    "global": "^4.3.2",
+    "jest": "^24.7.1",
+    "parcel": "^1.12.3",
+    "prop-types": "^15.7.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "url-pattern": "^1.0.3"
+  },
+  "dependencies": {
+    "styled-components": "^4.2.0"
+  }
+}

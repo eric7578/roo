@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+
+  "name": "roo",
+  "description": "github viewer",
+  "version": "1.0",
+
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "management"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.github.com/*"],
+      "js": ["build/main.js"]
+    }
+  ]
+}
