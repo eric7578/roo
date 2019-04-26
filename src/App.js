@@ -3,10 +3,10 @@ import WithRepository, { Repository } from './components/WithRepository';
 import Tree from './components/Tree';
 import Explorer from './components/Explorer';
 import getDataSource from './dataSource/getDataSource';
-import './icon';
 import Auth from './components/Auth';
 import Search from './components/Search';
 import Toggleable from './components/Toggleable';
+import './icon';
 
 const App = props => {
   const ds = useRef(getDataSource());
@@ -20,7 +20,7 @@ const App = props => {
   return (
     <WithRepository
       syncParams={() => ds.current.params}
-      getBranches={ds.current.getBranches}
+      getRepo={ds.current.getRepo}
     >
       <Repository.Consumer>
         {({ params }) =>

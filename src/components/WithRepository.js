@@ -11,10 +11,10 @@ const WithRepository = props => {
   // initialize with default branch
   useEffect(() => {
     if (!params.sha) {
-      props.getBranches().then(branches => {
+      props.getRepo().then(repo => {
         setParams({
           ...params,
-          sha: branches[0].name
+          sha: repo.defaultBranch
         });
       });
     }
@@ -35,7 +35,7 @@ const WithRepository = props => {
 
 WithRepository.propTypes = {
   syncParams: PropTypes.func.isRequired,
-  getBranches: PropTypes.func.isRequired
+  getRepo: PropTypes.func.isRequired
 };
 
 export default memo(WithRepository);

@@ -63,10 +63,10 @@ const Tree = props => {
   return (
     <div onClick={props.type === 'tree' ? onClick : undefined}>
       {props.type === 'tree' &&
-        <Fragment>
+        <>
           <FileIcon icon={isOpen ? 'folder-open' : 'folder'} />
           {props.path}
-        </Fragment>
+        </>
       }
       {props.type === 'blob' &&
         <BlobNode

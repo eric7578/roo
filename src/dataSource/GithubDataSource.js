@@ -23,11 +23,19 @@ export default class GithubDataSource extends DataSource {
     );
   }
 
-  getBranches() {
+  getRepo() {
     const { owner, repo } = this.params;
-    return this.github
-      .get(`/repos/${owner}/${repo}/branches`)
-      .then(res => res.data);
+    return Promise.all([
+        this.github.get(`/repos/${owner}/${repo}`),
+        this.github.get(`/repos/${owner}/${repo}/branches`)
+      ])
+      .then(resp => resp.map(res => res.data))
+      .then(([repo, branches]) => {
+        return {
+          defaultBranch: repo.default_branch,
+          branches
+        };
+      });
   }
 
   getNodes(sha) {

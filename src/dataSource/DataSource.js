@@ -29,7 +29,7 @@ export default class DataSource {
   }
 
   bindFunctions() {
-    this.getBranches = this.getBranches.bind(this);
+    this.getRepo = this.getRepo.bind(this);
     this.getNodes = this.getNodes.bind(this);
     this.searchPath = this.searchPath.bind(this);
   }
@@ -69,7 +69,7 @@ export default class DataSource {
     throw new Error(`DataSource.syncParams is not implemented`);
   }
 
-  getBranches() {
+  getRepo() {
     throw new Error(`DataSource.getBranches is not implemented`);
   }
 
