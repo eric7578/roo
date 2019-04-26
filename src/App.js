@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import WithRepository, { Repository } from './components/WithRepository';
-import Tree from './components/Tree';
+import BranchTree from './components/BranchTree';
 import Explorer from './components/Explorer';
 import getDataSource from './dataSource/getDataSource';
 import Auth from './components/Auth';
@@ -42,9 +42,9 @@ const App = props => {
             <Toggleable isOpen={panel === 'tree'}>
               {params.pr && <div>todo</div>}
               {!params.pr && params.sha &&
-                <Tree
-                  sha={params.sha}
-                  getNodes={ds.current.getNodes}
+                <BranchTree
+                  head={params.sha}
+                  onLoadTree={ds.current.getNodes}
                 />
               }
             </Toggleable>

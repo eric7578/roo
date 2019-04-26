@@ -1,9 +1,9 @@
-import React, { Fragment, memo, useState, useEffect, useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Repository } from './WithRepository';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Toggleable from './Toggleable';
+import { Repository } from './WithRepository';
 
 const NodeList = styled.ol`
   list-style-type: none;
@@ -22,94 +22,79 @@ const FileIcon = styled(FontAwesomeIcon).attrs({
   }
 })``;
 
-const sortNodes = (n1, n2) => {
-  return n1.type === 'tree' && n2.type !== 'tree' ? -1 : 1;
-}
-
 const Tree = props => {
   const { renderer: { BlobNode } } = useContext(Repository);
-  const [tree, setTree] = useState(null);
-  const [isOpen, setIsOpen] = useState(!props.type);
+  const [isOpen, setIsOpen] = useState(props.root);
+
+  useEffect(() => {
+    if (isOpen && props.type === 'tree') {
+      props.onExpandTree(props.sha);
+    }
+  }, [isOpen]);
 
   const onClick = e => {
     if (e.target === e.currentTarget) {
-      const nextIsOpen = !isOpen;
       setIsOpen(!isOpen);
-
-      if (nextIsOpen && !tree) {
-        loadTree();
-      }
     }
   }
 
-  const loadTree = () => {
-    props.getNodes(props.sha).then(nodes => {
-      nodes.sort(sortNodes);
-      setTree(nodes);
-    });
-  }
-
-  const changeLocation = e => {
+  const navigateBlobPage = e => {
     e.preventDefault();
     window.location =  e.target.href;
   }
 
-  useEffect(() => {
-    if (isOpen) {
-      loadTree();
-    }
-  }, []);
-
   return (
     <div onClick={props.type === 'tree' ? onClick : undefined}>
-      {props.type === 'tree' &&
+      {props.type === 'blob' &&
+        <>
+          <FileIcon icon='file' />
+          {props.path}
+        </>
+      }
+      {props.type === 'tree' && !props.root &&
         <>
           <FileIcon icon={isOpen ? 'folder-open' : 'folder'} />
           {props.path}
         </>
       }
-      {props.type === 'blob' &&
-        <BlobNode
-          parentPath={props.parentPath}
-          onClick={changeLocation}
-        >
-          <FileIcon icon='file' />
-          {props.path}
-        </BlobNode>
+      {props.type === 'tree' &&
+        <Toggleable isOpen={isOpen}>
+          {props.tree && props.tree.length > 0 &&
+            <NodeList>
+              {props.tree.map(node =>
+                <NodeItem key={`${node.sha}_${node.path}`}>
+                  <Tree
+                    {...node}
+                    onExpandTree={node.type === 'tree'
+                      ? props.onExpandTree
+                      : undefined
+                    }
+                  />
+                </NodeItem>
+              )}
+            </NodeList>
+          }
+        </Toggleable>
       }
-      <Toggleable isOpen={isOpen}>
-        <NodeList>
-          {tree && tree.map(node =>
-            <NodeItem key={`${node.sha}_${node.path}`}>
-              <Tree
-                {...node}
-                parentPath={[
-                  ...props.parentPath,
-                  node.path
-                ]}
-                getNodes={node.type === 'tree'
-                  ? props.getNodes
-                  : undefined
-                }
-              />
-            </NodeItem>
-          )}
-        </NodeList>
-      </Toggleable>
     </div>
   );
+}
+
+const NodePropTypes = {
+  sha: PropTypes.string.isRequired,
+  path: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(['blob', 'tree']).isRequired
 };
 
 Tree.propTypes = {
-  sha: PropTypes.string.isRequired,
-  parentPath: PropTypes.arrayOf(PropTypes.string),
-  path: PropTypes.string,
-  type: PropTypes.oneOf(['blob', 'tree']),
-  getNodes: PropTypes.func
+  ...NodePropTypes,
+  root: PropTypes.bool,
+  tree: PropTypes.arrayOf(PropTypes.shape(NodePropTypes)),
+  onExpandTree: PropTypes.func
 };
 
 Tree.defaultProps = {
-  parentPath: []
+  root: false
 };
 
-export default memo(Tree);
+export default Tree;
