@@ -1,12 +1,10 @@
-import React, { createContext, memo, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import getRenderer from './renderer/getRenderer';
 
 export const Repository = createContext(null);
 
 const WithRepository = props => {
   const [params, setParams] = useState(() => props.syncParams());
-  const [renderer, setRenderer] = useState(() => getRenderer());
 
   // initialize with default branch
   useEffect(() => {
@@ -20,17 +18,12 @@ const WithRepository = props => {
     }
   }, []);
 
-  useEffect(() => setRenderer(getRenderer(params)), [params]);
-
-  return renderer && (
+  return params.sha ? (
     <Repository.Provider
       {...props}
-      value={{
-        params,
-        renderer
-      }}
+      value={params}
     />
-  );
+  ) : null;
 }
 
 WithRepository.propTypes = {
@@ -38,4 +31,4 @@ WithRepository.propTypes = {
   getRepo: PropTypes.func.isRequired
 };
 
-export default memo(WithRepository);
+export default WithRepository;

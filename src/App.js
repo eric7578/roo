@@ -6,6 +6,7 @@ import getDataSource from './dataSource/getDataSource';
 import Auth from './components/Auth';
 import Search from './components/Search';
 import Toggleable from './components/Toggleable';
+import WithRenderer from './components/WithRenderer';
 import './icon';
 
 const App = props => {
@@ -22,35 +23,37 @@ const App = props => {
       syncParams={() => ds.current.params}
       getRepo={ds.current.getRepo}
     >
-      <Repository.Consumer>
-        {({ params }) =>
-          <Explorer>
-            <button onClick={onToggleSearch}>Search</button>
-            <button onClick={onToggleAuth}>Auth</button>
-            <Toggleable isOpen={panel === 'auth'}>
-              <Auth
-                getAuth={ds.current.getAuth}
-                setAuth={auth => {
-                  ds.current.setAuth(auth);
-                  ds.current.syncAuth();
-                }}
-              />
-            </Toggleable>
-            <Toggleable isOpen={panel === 'search'}>
-              <Search onSearch={ds.current.searchPath} />
-            </Toggleable>
-            <Toggleable isOpen={panel === 'tree'}>
-              {params.pr && <div>todo</div>}
-              {!params.pr && params.sha &&
-                <BranchTree
-                  head={params.sha}
-                  onLoadTree={ds.current.getNodes}
+      <WithRenderer>
+        <Repository.Consumer>
+          {({ pr, sha }) =>
+            <Explorer>
+              <button onClick={onToggleSearch}>Search</button>
+              <button onClick={onToggleAuth}>Auth</button>
+              <Toggleable isOpen={panel === 'auth'}>
+                <Auth
+                  getAuth={ds.current.getAuth}
+                  setAuth={auth => {
+                    ds.current.setAuth(auth);
+                    ds.current.syncAuth();
+                  }}
                 />
-              }
-            </Toggleable>
-          </Explorer>
-        }
-      </Repository.Consumer>
+              </Toggleable>
+              <Toggleable isOpen={panel === 'search'}>
+                <Search onSearch={ds.current.searchPath} />
+              </Toggleable>
+              <Toggleable isOpen={panel === 'tree'}>
+                {pr && <div>todo</div>}
+                {!pr && sha &&
+                  <BranchTree
+                    head={sha}
+                    onLoadTree={ds.current.getNodes}
+                  />
+                }
+              </Toggleable>
+            </Explorer>
+          }
+        </Repository.Consumer>
+      </WithRenderer>
     </WithRepository>
   );
 }
