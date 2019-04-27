@@ -1,6 +1,7 @@
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import Tree from './Tree';
+import { Renderer } from './WithRenderer';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -64,6 +65,7 @@ export function appendTreeNode(startNode, sha, tree) {
 
 const BranchTree = props => {
   const [state, dispatch] = useReducer(reducer, props.head, checkoutHead);
+  const { BlobNode } = useContext(Renderer);
 
   const onExpandTree = sha => {
     props.onLoadTree(sha).then(tree => {
@@ -92,6 +94,7 @@ const BranchTree = props => {
       type='tree'
       sha={state.sha}
       tree={state.tree}
+      blobNodeComponent={BlobNode}
       onExpandTree={onExpandTree}
     />
   );

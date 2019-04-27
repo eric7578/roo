@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Toggleable from './Toggleable';
-import { Renderer } from './WithRenderer';
 
 const NodeList = styled.ol`
   list-style-type: none;
@@ -23,7 +22,6 @@ const FileIcon = styled(FontAwesomeIcon).attrs({
 })``;
 
 const Tree = props => {
-  const { BlobNode } = useContext(Renderer);
   const [isOpen, setIsOpen] = useState(props.root);
 
   useEffect(() => {
@@ -46,10 +44,15 @@ const Tree = props => {
   return (
     <div onClick={props.type === 'tree' ? onClick : undefined}>
       {props.type === 'blob' &&
-        <BlobNode path={props.path} prevTrees={props.prevTrees}>
+        <props.blobNodeComponent
+          tree={{
+            path: props.path,
+            prevTrees: props.prevTrees
+          }}
+        >
           <FileIcon icon='file' />
           {props.path}
-        </BlobNode>
+        </props.blobNodeComponent>
       }
       {props.type === 'tree' && !props.root &&
         <>
@@ -65,6 +68,7 @@ const Tree = props => {
                 <NodeItem key={`${node.sha}_${node.path}`}>
                   <Tree
                     {...node}
+                    blobNodeComponent={props.blobNodeComponent}
                     prevTrees={props.root
                       ? []
                       : [ ...props.prevTrees, props.path ]
@@ -95,6 +99,10 @@ Tree.propTypes = {
   root: PropTypes.bool,
   tree: PropTypes.arrayOf(PropTypes.shape(NodePropTypes)),
   prevTrees: PropTypes.arrayOf(PropTypes.string),
+  blobNodeComponent: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.string
+  ]).isRequired,
   onExpandTree: PropTypes.func
 };
 

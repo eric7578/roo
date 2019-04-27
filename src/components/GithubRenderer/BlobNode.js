@@ -1,11 +1,19 @@
 import React from 'react';
 
 const BlobNode = props => {
-  const { repository, path, prevTrees, children, ...rest } = props;
+  const { repository, tree, children, ...rest } = props;
+  const pathname = [
+    repository.owner,
+    repository.repo,
+    'blob',
+    repository.sha,
+    ...tree.prevTrees,
+    tree.path
+  ];
 
   return (
     <a
-      href={`https://github.com/${repository.owner}/${repository.repo}/blob/${repository.sha}/${prevTrees.join('/')}/${path}`}
+      href={`https://github.com/${pathname.join('/')}`}
       {...rest}
     >
       {children}
