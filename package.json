@@ -25,6 +25,8 @@
     "@fortawesome/react-fontawesome": "^0.1.4",
     "axios": "^0.18.0",
     "babel-plugin-styled-components": "^1.10.0",
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.12.1",
     "global": "^4.3.2",
     "jest": "^24.7.1",
     "parcel": "^1.12.3",
