@@ -1,4 +1,4 @@
-import { appendTreeNode } from '../../src/components/BranchTree';
+import { appendTreeNode } from '../../src/components/hooks/usePartialTree';
 
 const startNode = {
   tree: [
