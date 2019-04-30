@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
+import Tree from './Tree';
+import { Renderer } from './WithRenderer';
+import useFlattenTree from '../components/hooks/useFlattenTree';
 
 const Search = props => {
+  const { BlobNode } = useContext(Renderer);
   const [items, setItems] = useState([]);
+  const state = useFlattenTree(items);
 
   const onKeyPress = e => {
     if (e.key === 'Enter') {
@@ -14,14 +19,12 @@ const Search = props => {
     <div>
       <input type='text' onKeyPress={onKeyPress} />
       {items.length > 0 &&
-        <ol>
-          {items.map(item =>
-            <li key={item.sha}>
-              {item.name}
-              {item.path}
-            </li>
-          )}
-        </ol>
+        <Tree
+          {...state}
+          root
+          type='tree'
+          blobNodeComponent={BlobNode}
+        />
       }
     </div>
   );

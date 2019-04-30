@@ -25,7 +25,7 @@ const Tree = props => {
   const [isOpen, setIsOpen] = useState(props.root);
 
   useEffect(() => {
-    if (isOpen && props.type === 'tree') {
+    if (isOpen && props.type === 'tree' && props.onExpandTree) {
       props.onExpandTree(props.sha);
     }
   }, [isOpen]);

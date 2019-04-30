@@ -32,6 +32,7 @@ export default class DataSource {
     this.getRepo = this.getRepo.bind(this);
     this.getNodes = this.getNodes.bind(this);
     this.searchPath = this.searchPath.bind(this);
+    this.getPullRequest = this.getPullRequest.bind(this);
   }
 
   setAuth(auth) {
@@ -79,5 +80,9 @@ export default class DataSource {
 
   searchPath(...keywrd) {
     throw new Error(`DataSource.searchPath is not implemented`);
+  }
+
+  getPullRequest(pullNumber) {
+    throw new Error(`DataSource.getPullRequest is not implemented`);
   }
 }

@@ -5,6 +5,7 @@ import Explorer from './components/Explorer';
 import getDataSource from './dataSource/getDataSource';
 import Auth from './components/Auth';
 import Search from './components/Search';
+import PullRequest from './components/PullRequest';
 import Toggleable from './components/Toggleable';
 import WithRenderer from './components/WithRenderer';
 import './icon';
@@ -17,6 +18,17 @@ const App = props => {
   const toggleTo = target => setPanel(panel === target ? 'tree' : target);
   const onToggleSearch = e => toggleTo('search');
   const onToggleAuth = e => toggleTo('auth');
+
+  const onGetPR = pr => () => {
+    return ds.current.getPullRequest(pr).then(files => {
+      return files.map(file => {
+        return {
+          ...file,
+          path: file.filename
+        };
+      });
+    })
+  }
 
   return (
     <WithRepository
@@ -42,7 +54,11 @@ const App = props => {
                 <Search onSearch={ds.current.searchPath} />
               </Toggleable>
               <Toggleable isOpen={panel === 'tree'}>
-                {pr && <div>todo</div>}
+                {pr &&
+                  <PullRequest
+                    onGetPR={onGetPR(pr)}
+                  />
+                }
                 {!pr && sha &&
                   <BranchTree
                     head={sha}
