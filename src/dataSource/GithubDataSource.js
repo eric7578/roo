@@ -17,8 +17,9 @@ export default class GithubDataSource extends DataSource {
   syncParams() {
     this.params = this.parseParams(
       // pr
-      new UrlPattern('https\\://github.com/:owner/:repo/pull/:pr'),
+      new UrlPattern('https\\://github.com/:owner/:repo/pull/:pr(/*)'),
       // index, tree, blob, commit
+      new UrlPattern('https\\://github.com/:owner/:repo(/:type)'),
       new UrlPattern('https\\://github.com/:owner/:repo(/:type/:sha(/*))')
     );
   }
@@ -57,6 +58,9 @@ export default class GithubDataSource extends DataSource {
     const { owner, repo } = this.params;
     return this.github
       .get(`/repos/${owner}/${repo}/pulls/${pullNumber}/files`)
-      .then(res => res.data);
+      .then(res => res.data.map((o, index) => {
+        o.index = index;
+        return o;
+      }));
   }
 }

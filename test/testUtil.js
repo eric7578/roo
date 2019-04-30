@@ -9,8 +9,8 @@ configure({
 const RunHook = props => {
   props.runHook();
   return null;
-};
+}
 
 export const testHook = runHook => {
   mount(<RunHook runHook={runHook} />);
-};
+}

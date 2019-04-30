@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { createElement, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -15,18 +15,13 @@ const NodeItem = styled.li`
   margin-left: 15px;
 `;
 
-const FileIcon = styled(FontAwesomeIcon).attrs({
-  style: {
-    marginRight: 5
-  }
-})``;
-
 const Tree = props => {
+  const { blobNodeComponent, onExpandTree, ...blobNodeProps } = props;
   const [isOpen, setIsOpen] = useState(props.root);
 
   useEffect(() => {
-    if (isOpen && props.type === 'tree' && props.onExpandTree) {
-      props.onExpandTree(props.sha);
+    if (isOpen && props.type === 'tree' && onExpandTree) {
+      onExpandTree(props.sha);
     }
   }, [isOpen]);
 
@@ -43,20 +38,10 @@ const Tree = props => {
 
   return (
     <div onClick={props.type === 'tree' ? onClick : undefined}>
-      {props.type === 'blob' &&
-        <props.blobNodeComponent
-          tree={{
-            path: props.path,
-            prevTrees: props.prevTrees
-          }}
-        >
-          <FileIcon icon='file' />
-          {props.path}
-        </props.blobNodeComponent>
-      }
+      {props.type === 'blob' && createElement(blobNodeComponent, blobNodeProps)}
       {props.type === 'tree' && !props.root &&
         <>
-          <FileIcon icon={isOpen ? 'folder-open' : 'folder'} />
+          <FontAwesomeIcon icon={isOpen ? 'folder-open' : 'folder'} />
           {props.path}
         </>
       }
@@ -68,7 +53,7 @@ const Tree = props => {
                 <NodeItem key={`${node.sha}_${node.path}`}>
                   <Tree
                     {...node}
-                    blobNodeComponent={props.blobNodeComponent}
+                    blobNodeComponent={blobNodeComponent}
                     prevTrees={props.root
                       ? []
                       : [ ...props.prevTrees, props.path ]

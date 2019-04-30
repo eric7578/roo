@@ -1,22 +1,20 @@
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const BlobNode = props => {
-  const { repository, tree, children, ...rest } = props;
   const pathname = [
-    repository.owner,
-    repository.repo,
+    props.repository.owner,
+    props.repository.repo,
     'blob',
-    repository.sha,
-    ...tree.prevTrees,
-    tree.path
+    props.repository.sha,
+    ...props.prevTrees,
+    props.path
   ];
 
   return (
-    <a
-      href={`https://github.com/${pathname.join('/')}`}
-      {...rest}
-    >
-      {children}
+    <a href={`https://github.com/${pathname.join('/')}`}>
+      <FontAwesomeIcon icon='file' />
+      {props.path}
     </a>
   );
 }
