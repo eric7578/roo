@@ -1,5 +1,5 @@
 {
-  "name": "codeck",
+  "name": "roo",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,13 +8,13 @@
     "watch": "parcel watch src/main.js -d build/ -o main.js",
     "test": "jest"
   },
-  "repository": "git+https://github.com/eric7578/codeck.git",
+  "repository": "git+https://github.com/eric7578/roo.git",
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/eric7578/codeck/issues"
+    "url": "https://github.com/eric7578/roo/issues"
   },
-  "homepage": "https://github.com/eric7578/codeck#readme",
+  "homepage": "https://github.com/eric7578/roo#readme",
   "devDependencies": {
     "@babel/core": "^7.4.3",
     "@babel/plugin-transform-runtime": "^7.4.3",
