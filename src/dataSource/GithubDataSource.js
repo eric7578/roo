@@ -22,6 +22,8 @@ export default class GithubDataSource extends DataSource {
       new UrlPattern('https\\://github.com/:owner/:repo(/:type)'),
       new UrlPattern('https\\://github.com/:owner/:repo(/:type/:sha(/*))')
     );
+
+    return this.params;
   }
 
   getRepo() {

@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "parcel build src/main.js -d build/ -o main.js",
-    "watch": "parcel watch src/main.js -d build/ -o main.js",
+    "build": "parcel build src/main.js src/background/*.js -d build",
+    "watch": "parcel watch src/main.js src/background/*.js -d build",
     "test": "jest"
   },
   "repository": "git+https://github.com/eric7578/roo.git",

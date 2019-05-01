@@ -29,6 +29,8 @@ export default class DataSource {
   }
 
   bindFunctions() {
+    this.syncAuth = this.syncAuth.bind(this);
+    this.syncParams = this.syncParams.bind(this);
     this.getRepo = this.getRepo.bind(this);
     this.getNodes = this.getNodes.bind(this);
     this.searchPath = this.searchPath.bind(this);
