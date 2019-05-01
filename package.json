@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "parcel build src/main.js src/background/*.js -d build",
+    "build": "parcel build src/main.js src/background/*.js --experimental-scope-hoisting -d build",
     "watch": "parcel watch src/main.js src/background/*.js -d build",
     "test": "jest"
   },
