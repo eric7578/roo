@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { ThemeProvider } from 'styled-components';
-import document from 'global/document';
-import window from 'global/window';
+import useDetectedTheme from './hooks/useDetectedTheme';
 
 const Wrapper = styled.div`
   background-color: ${props => props.theme.backgroundColor};
@@ -15,15 +14,7 @@ const Wrapper = styled.div`
 `;
 
 const Explorer = props => {
-  const [theme, setTheme] = useState({});
-
-  useEffect(() => {
-    const bodyStyle = window.getComputedStyle(document.body);
-    setTheme({
-      backgroundColor: bodyStyle.backgroundColor,
-      color: bodyStyle.color
-    });
-  }, []);
+  const theme = useDetectedTheme();
 
   return (
     <ThemeProvider theme={theme}>
