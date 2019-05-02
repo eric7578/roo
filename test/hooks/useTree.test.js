@@ -1,7 +1,55 @@
 import { testHook } from '../testUtil';
-import useFlattenTree, { mutatePathIn, collapseToTree, FILE } from '../../src/components/hooks/useFlattenTree';
+import useTree, { mutatePathIn, collapseToTree, appendTreeNode, FILE, ROOT_SHA } from '../../src/components/hooks/useTree';
 
-describe('useFlattenTree', () => {
+describe('useTree', () => {
+  describe('appendTreeNode', () => {
+    const startNode = {
+      tree: [
+        {
+          sha: '0.0',
+          tree: [
+            { sha: '1.0' },
+            { sha: '1.1' }
+          ]
+        },
+        { sha: '0.1' }
+      ]
+    };
+
+    it('will append to current node if sha is matched', () => {
+      const tree = appendTreeNode({ sha: 'master' }, 'master', [{ sha: '0.1' }]);
+
+      expect(tree).toEqual({
+        sha: 'master',
+        tree: [
+          { sha: '0.1' }
+        ]
+      });
+    });
+
+    it('will append tree to node which has the matching sha', () => {
+      const tree = appendTreeNode(startNode, '1.0', [{ sha: '2.0' }]);
+
+      expect(tree).toEqual({
+        tree: [
+          {
+            sha: '0.0',
+            tree: [
+              {
+                sha: '1.0',
+                tree: [
+                  { sha: '2.0' }
+                ]
+              },
+              { sha: '1.1' }
+            ]
+          },
+          { sha: '0.1' }
+        ]
+      });
+    });
+  });
+
   describe('mutatePathIn', () => {
     it('should create keys that is not existed', () => {
       const obj = {};
@@ -86,7 +134,7 @@ describe('useFlattenTree', () => {
     });
   });
 
-  describe('useFlattenTree', () => {
+  describe('useTree', () => {
     const testSets = [
       // test single node
       {
@@ -139,10 +187,6 @@ describe('useFlattenTree', () => {
         ],
         expectTree: [
           {
-            type: 'blob',
-            path: 'file1.js'
-          },
-          {
             type: 'tree',
             path: 'some/path',
             tree: [
@@ -167,6 +211,10 @@ describe('useFlattenTree', () => {
                 ]
               }
             ]
+          },
+          {
+            type: 'blob',
+            path: 'file1.js'
           }
         ]
       }
@@ -174,14 +222,15 @@ describe('useFlattenTree', () => {
 
     testSets.forEach(({ givenPath, expectTree }, i) => {
       it(`should turn flatten paths to a structured tree, test set: ${i + 1}`, () => {
-        let tree;
+        let state;
 
         testHook(() => {
-          tree = useFlattenTree(givenPath);
+          const tree = useTree(givenPath);
+          state = tree.state;
         });
 
-        expect(tree).toEqual({
-          sha: 'root',
+        expect(state).toEqual({
+          sha: ROOT_SHA,
           type: 'tree',
           tree: expectTree
         });
@@ -189,3 +238,5 @@ describe('useFlattenTree', () => {
     });
   });
 });
+
+

@@ -62,7 +62,7 @@ const App = props => {
                   }
                   {!pr && sha &&
                     <BranchTree
-                      head={sha}
+                      branch={sha}
                       onLoadTree={ds.current.getNodes}
                     />
                   }

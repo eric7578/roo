@@ -19,15 +19,12 @@ const Tree = props => {
   const { blobNodeComponent, onExpandTree, ...blobNodeProps } = props;
   const [isOpen, setIsOpen] = useState(props.root);
 
-  useEffect(() => {
-    if (isOpen && props.type === 'tree' && onExpandTree) {
-      onExpandTree(props.sha);
-    }
-  }, [isOpen]);
-
   const onClick = e => {
     if (e.target === e.currentTarget) {
       setIsOpen(!isOpen);
+      if (!isOpen && props.type === 'tree' && onExpandTree) {
+        onExpandTree(props.sha);
+      }
     }
   }
 

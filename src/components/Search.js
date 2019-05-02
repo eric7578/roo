@@ -2,12 +2,12 @@ import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import Tree from './Tree';
 import { Renderer } from './WithRenderer';
-import useFlattenTree from '../components/hooks/useFlattenTree';
+import useTree from '../components/hooks/useTree';
 
 const Search = props => {
   const { BlobNode } = useContext(Renderer);
   const [items, setItems] = useState([]);
-  const state = useFlattenTree(items);
+  const { state } = useTree(items);
 
   const onKeyPress = e => {
     if (e.key === 'Enter') {

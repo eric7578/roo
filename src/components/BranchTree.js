@@ -2,10 +2,10 @@ import React, { useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import Tree from './Tree';
 import { Renderer } from './WithRenderer';
-import usePartialTree from './hooks/usePartialTree';
+import useTree, { ROOT_SHA } from './hooks/useTree';
 
 const BranchTree = props => {
-  const [state, expandTree] = usePartialTree(props.head);
+  const { state, expandTree, resetTree } = useTree();
   const { BlobNode } = useContext(Renderer);
 
   const onExpandTree = sha => {
@@ -13,8 +13,9 @@ const BranchTree = props => {
   }
 
   useEffect(() => {
-    onExpandTree(props.head);
-  }, []);
+    resetTree();
+    props.onLoadTree(props.branch).then(tree => expandTree(ROOT_SHA, tree));
+  }, [props.branch]);
 
   return (
     <Tree
@@ -28,7 +29,7 @@ const BranchTree = props => {
 }
 
 BranchTree.propTypes = {
-  head: PropTypes.string.isRequired,
+  branch: PropTypes.string.isRequired,
   onLoadTree: PropTypes.func.isRequired
 };
 
