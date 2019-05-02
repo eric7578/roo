@@ -1,34 +1,31 @@
 import React, { createContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import useLocation from './hooks/useLocation';
+import useLocationEffect from './hooks/useLocationEffect';
 
 export const Repository = createContext(null);
 
 const WithRepository = props => {
-  const [params, setParams] = useState(() => props.syncParams());
-  useLocation(() => {
-    const nextParams = props.syncParams();
-    setParams(nextParams);
+  const [repo, setRepo] = useState(null);
+  const [params, setParams] = useState(null);
+
+  useEffect(() => {
+    props.getRepo().then(setRepo);
+  }, []);
+
+  useLocationEffect(() => {
+    setParams(props.syncParams());
   });
 
-  // initialize with default branch
-  useEffect(() => {
-    if (!params.sha) {
-      props.getRepo().then(repo => {
-        setParams({
-          ...params,
-          sha: repo.defaultBranch
-        });
-      });
-    }
-  }, [params.sha]);
-
-  return params.sha ? (
+  return repo && params && (
     <Repository.Provider
       {...props}
-      value={params}
+      value={{
+        ...repo,
+        ...params,
+        sha: params.sha || repo.defaultBranch
+      }}
     />
-  ) : null;
+  );
 }
 
 WithRepository.propTypes = {

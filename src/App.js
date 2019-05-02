@@ -20,14 +20,7 @@ const App = props => {
   const onToggleAuth = e => toggleTo('auth');
 
   const onGetPR = pr => () => {
-    return ds.current.getPullRequest(pr).then(files => {
-      return files.map(file => {
-        return {
-          ...file,
-          path: file.filename
-        };
-      });
-    })
+    return ds.current.getPullRequest(pr);
   }
 
   return (
@@ -60,7 +53,7 @@ const App = props => {
                       onGetPR={onGetPR(pr)}
                     />
                   }
-                  {!pr && sha &&
+                  {!pr &&
                     <BranchTree
                       branch={sha}
                       onLoadTree={ds.current.getNodes}

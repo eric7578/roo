@@ -28,11 +28,6 @@ const Tree = props => {
     }
   }
 
-  const navigateBlobPage = e => {
-    e.preventDefault();
-    window.location =  e.target.href;
-  }
-
   return (
     <div onClick={props.type === 'tree' ? onClick : undefined}>
       {props.type === 'blob' && createElement(blobNodeComponent, blobNodeProps)}
@@ -47,7 +42,7 @@ const Tree = props => {
           {props.tree && props.tree.length > 0 &&
             <NodeList>
               {props.tree.map(node =>
-                <NodeItem key={`${node.sha}_${node.path}`}>
+                <NodeItem key={node.sha || node.path}>
                   <Tree
                     {...node}
                     blobNodeComponent={blobNodeComponent}
@@ -71,7 +66,10 @@ const Tree = props => {
 }
 
 const NodePropTypes = {
-  sha: PropTypes.string.isRequired,
+  sha: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.symbol
+  ]),
   type: PropTypes.oneOf(['blob', 'tree']).isRequired,
   path: PropTypes.string
 };

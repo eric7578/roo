@@ -62,6 +62,7 @@ export default class GithubDataSource extends DataSource {
       .get(`/repos/${owner}/${repo}/pulls/${pullNumber}/files`)
       .then(res => res.data.map((o, index) => {
         o.index = index;
+        o.path = o.filename;
         return o;
       }));
   }
