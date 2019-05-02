@@ -1,7 +1,7 @@
 {
   "name": "roo",
   "version": "1.0.0",
-  "description": "",
+  "description": "Github viewer extension",
   "main": "index.js",
   "scripts": {
     "build": "parcel build src/main.js src/background/*.js --experimental-scope-hoisting -d build",
@@ -16,9 +16,9 @@
   },
   "homepage": "https://github.com/eric7578/roo#readme",
   "devDependencies": {
-    "@babel/core": "^7.4.3",
-    "@babel/plugin-transform-runtime": "^7.4.3",
-    "@babel/preset-env": "^7.4.3",
+    "@babel/core": "^7.4.4",
+    "@babel/plugin-transform-runtime": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
     "@babel/preset-react": "^7.0.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.17",
     "@fortawesome/free-solid-svg-icons": "^5.8.1",
