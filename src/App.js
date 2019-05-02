@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import WithRepository, { Repository } from './components/WithRepository';
 import BranchTree from './components/BranchTree';
 import Explorer from './components/Explorer';
-import getDataSource from './dataSource/getDataSource';
+import dataSource from './dataSource';
 import Auth from './components/Auth';
 import Search from './components/Search';
 import PullRequest from './components/PullRequest';
@@ -11,25 +11,19 @@ import WithRenderer from './components/WithRenderer';
 import './icon';
 
 const App = props => {
-  const ds = useRef(getDataSource());
-
   const [panel, setPanel] = useState('tree');
 
   const toggleTo = target => setPanel(panel === target ? 'tree' : target);
   const onToggleSearch = e => toggleTo('search');
   const onToggleAuth = e => toggleTo('auth');
 
-  const onGetPR = pr => () => {
-    return ds.current.getPullRequest(pr);
-  }
-
   return (
     <Explorer>
       <button onClick={onToggleSearch}>Search</button>
       <button onClick={onToggleAuth}>Auth</button>
       <WithRepository
-        syncParams={ds.current.syncParams}
-        getRepo={ds.current.getRepo}
+        syncParams={dataSource.syncParams}
+        getRepo={dataSource.getRepo}
       >
         <WithRenderer>
           <Repository.Consumer>
@@ -37,26 +31,26 @@ const App = props => {
               <>
                 <Toggleable isOpen={panel === 'auth'}>
                   <Auth
-                    getAuth={ds.current.getAuth}
+                    getAuth={dataSource.getAuth}
                     setAuth={auth => {
-                      ds.current.setAuth(auth);
-                      ds.current.syncAuth();
+                      dataSource.setAuth(auth);
+                      dataSource.syncAuth();
                     }}
                   />
                 </Toggleable>
                 <Toggleable isOpen={panel === 'search'}>
-                  <Search onSearch={ds.current.searchPath} />
+                  <Search onSearch={dataSource.searchPath} />
                 </Toggleable>
                 <Toggleable isOpen={panel === 'tree'}>
                   {pr &&
                     <PullRequest
-                      onGetPR={onGetPR(pr)}
+                      onGetPR={() => dataSource.getPullRequest(pr)}
                     />
                   }
                   {!pr &&
                     <BranchTree
                       branch={sha}
-                      onLoadTree={ds.current.getNodes}
+                      onLoadTree={dataSource.getNodes}
                     />
                   }
                 </Toggleable>
