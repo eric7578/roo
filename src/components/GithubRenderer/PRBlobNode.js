@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { Repository } from '../WithRepository';
 
 const PRBlobNode = props => {
+  const { owner, repo, pr } = useContext(Repository);
   const pathname = [
-    props.repository.owner,
-    props.repository.repo,
+    owner,
+    repo,
     'pull',
-    props.repository.pr,
+    pr,
     'files'
   ];
 

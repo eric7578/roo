@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Repository } from '../WithRepository';
 
 const BlobNode = props => {
+  const { owner, repo, sha } = useContext(Repository);
   const pathname = [
-    props.repository.owner,
-    props.repository.repo,
+    owner,
+    repo,
     'blob',
-    props.repository.sha,
+    sha,
     ...props.prevTrees,
     props.path
   ];
