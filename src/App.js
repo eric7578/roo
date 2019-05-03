@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import WithRepository, { Repository } from './components/WithRepository';
 import Head from './components/Head';
+import Commit from './components/Commit';
 import Explorer from './components/Explorer';
 import dataSource from './dataSource';
 import Auth from './components/Auth';
@@ -42,17 +43,9 @@ const App = props => {
                   <Search onSearch={dataSource.searchPath} />
                 </Toggleable>
                 <Toggleable isOpen={panel === 'tree'}>
-                  {pr &&
-                    <PullRequest
-                      onGetPR={() => dataSource.getPullRequest(pr)}
-                    />
-                  }
-                  {!pr &&
-                    <Head
-                      head={head}
-                      onLoadTree={dataSource.getNodes}
-                    />
-                  }
+                  {pr && <PullRequest pr={pr} onGetPR={dataSource.getPullRequest} />}
+                  {commit && <Commit commit={commit} onGetCommit={dataSource.getCommit} />}
+                  {head && <Head head={head} onLoadTree={dataSource.getNodes} />}
                 </Toggleable>
               </>
             }

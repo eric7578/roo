@@ -16,16 +16,20 @@ const WithRepository = props => {
     setParams(props.syncParams());
   });
 
-  return repo && params && (
-    <Repository.Provider
-      {...props}
-      value={{
-        ...repo,
-        ...params,
-        head: params.head || repo.defaultBranch
-      }}
-    />
-  );
+  if (!repo || !params) {
+    return null;
+  }
+
+  const ctx = {
+    ...repo,
+    ...params
+  };
+
+  if (!params.pr && !params.commit) {
+    ctx.head = repo.defaultBranch;
+  }
+
+  return <Repository.Provider {...props} value={ctx} />;
 }
 
 WithRepository.propTypes = {

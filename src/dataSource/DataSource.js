@@ -35,6 +35,7 @@ export default class DataSource {
     this.getNodes = this.getNodes.bind(this);
     this.searchPath = this.searchPath.bind(this);
     this.getPullRequest = this.getPullRequest.bind(this);
+    this.getCommit = this.getCommit.bind(this);
   }
 
   setAuth(auth) {
@@ -56,8 +57,13 @@ export default class DataSource {
   }
 
   parseParams(...patterns) {
+    // remove hash
+    const { href } = window.location;
+    const hashIndex = window.location.href.lastIndexOf('#');
+    const url = hashIndex < 0 ? href : href.slice(0, hashIndex);
+
     for (const pattern of patterns) {
-      const params = pattern.match(window.location.href);
+      const params = pattern.match(url);
       if (params) {
         return params;
       }
@@ -86,5 +92,9 @@ export default class DataSource {
 
   getPullRequest(pullNumber) {
     throw new Error(`DataSource.getPullRequest is not implemented`);
+  }
+
+  getCommit(sha) {
+    throw new Error(`DataSource.getCommit is not implemented`);
   }
 }

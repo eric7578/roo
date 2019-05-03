@@ -4,28 +4,28 @@ import { Renderer } from './WithRenderer';
 import Tree from './Tree';
 import useTree from '../components/hooks/useTree';
 
-const PullRequest = props => {
-  const { PRBlobNode } = useContext(Renderer);
+const Commit = props => {
+  const { CommitBlobNode } = useContext(Renderer);
   const [flattenTree, setFlattenTree] = useState([]);
   const { state } = useTree(flattenTree);
 
   useEffect(() => {
-    props.onGetPR(props.pr).then(setFlattenTree);
-  }, [props.pr]);
+    props.onGetCommit(props.commit).then(setFlattenTree);
+  }, [props.commit]);
 
   return flattenTree.length > 0 && (
     <Tree
       {...state}
       root
       type='tree'
-      blobNodeComponent={PRBlobNode}
+      blobNodeComponent={CommitBlobNode}
     />
   );
 }
 
-PullRequest.propTypes = {
-  pr: PropTypes.string.isRequired,
-  onGetPR: PropTypes.func.isRequired
+Commit.propTypes = {
+  commit: PropTypes.string.isRequired,
+  onGetCommit: PropTypes.func.isRequired
 };
 
-export default PullRequest;
+export default Commit;

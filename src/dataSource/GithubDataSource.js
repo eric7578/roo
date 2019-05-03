@@ -18,6 +18,8 @@ export default class GithubDataSource extends DataSource {
     this.params = this.parseParams(
       // pr
       new UrlPattern('https\\://github.com/:owner/:repo/pull/:pr(/*)'),
+      // commit
+      new UrlPattern('https\\://github.com/:owner/:repo/commit/:commit(/*)'),
       // index, tree, blob, commit
       new UrlPattern('https\\://github.com/:owner/:repo(/:type)'),
       new UrlPattern('https\\://github.com/:owner/:repo(/:type/:head(/*))')
@@ -61,6 +63,17 @@ export default class GithubDataSource extends DataSource {
     return this.github
       .get(`/repos/${owner}/${repo}/pulls/${pullNumber}/files`)
       .then(res => res.data.map((o, index) => {
+        o.index = index;
+        o.path = o.filename;
+        return o;
+      }));
+  }
+
+  getCommit(sha) {
+    const { owner, repo } = this.params;
+    return this.github
+      .get(`/repos/${owner}/${repo}/commits/${sha}`)
+      .then(res => res.data.files.map((o, index) => {
         o.index = index;
         o.path = o.filename;
         return o;
