@@ -20,7 +20,7 @@ export default class GithubDataSource extends DataSource {
       new UrlPattern('https\\://github.com/:owner/:repo/pull/:pr(/*)'),
       // index, tree, blob, commit
       new UrlPattern('https\\://github.com/:owner/:repo(/:type)'),
-      new UrlPattern('https\\://github.com/:owner/:repo(/:type/:sha(/*))')
+      new UrlPattern('https\\://github.com/:owner/:repo(/:type/:head(/*))')
     );
 
     return this.params;

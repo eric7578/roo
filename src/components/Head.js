@@ -4,7 +4,7 @@ import Tree from './Tree';
 import { Renderer } from './WithRenderer';
 import useTree, { ROOT_SHA } from './hooks/useTree';
 
-const BranchTree = props => {
+const Head = props => {
   const { state, expandTree, resetTree } = useTree();
   const { BlobNode } = useContext(Renderer);
 
@@ -14,8 +14,8 @@ const BranchTree = props => {
 
   useEffect(() => {
     resetTree();
-    props.onLoadTree(props.branch).then(tree => expandTree(ROOT_SHA, tree));
-  }, [props.branch]);
+    props.onLoadTree(props.head).then(tree => expandTree(ROOT_SHA, tree));
+  }, [props.head]);
 
   return (
     <Tree
@@ -28,9 +28,9 @@ const BranchTree = props => {
   );
 }
 
-BranchTree.propTypes = {
-  branch: PropTypes.string.isRequired,
+Head.propTypes = {
+  head: PropTypes.string.isRequired,
   onLoadTree: PropTypes.func.isRequired
 };
 
-export default BranchTree;
+export default Head;

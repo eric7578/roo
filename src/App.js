@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import WithRepository, { Repository } from './components/WithRepository';
-import BranchTree from './components/BranchTree';
+import Head from './components/Head';
 import Explorer from './components/Explorer';
 import dataSource from './dataSource';
 import Auth from './components/Auth';
@@ -27,7 +27,7 @@ const App = props => {
       >
         <WithRenderer>
           <Repository.Consumer>
-            {({ pr, sha }) =>
+            {({ pr, head, commit }) =>
               <>
                 <Toggleable isOpen={panel === 'auth'}>
                   <Auth
@@ -48,8 +48,8 @@ const App = props => {
                     />
                   }
                   {!pr &&
-                    <BranchTree
-                      branch={sha}
+                    <Head
+                      head={head}
                       onLoadTree={dataSource.getNodes}
                     />
                   }

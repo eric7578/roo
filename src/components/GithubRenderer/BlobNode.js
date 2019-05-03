@@ -3,12 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Repository } from '../WithRepository';
 
 const BlobNode = props => {
-  const { owner, repo, sha } = useContext(Repository);
+  const { owner, repo, head } = useContext(Repository);
   const pathname = [
     owner,
     repo,
     'blob',
-    sha,
+    head,
     ...props.prevTrees,
     props.path
   ];

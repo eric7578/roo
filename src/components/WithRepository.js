@@ -22,7 +22,7 @@ const WithRepository = props => {
       value={{
         ...repo,
         ...params,
-        sha: params.sha || repo.defaultBranch
+        head: params.head || repo.defaultBranch
       }}
     />
   );
