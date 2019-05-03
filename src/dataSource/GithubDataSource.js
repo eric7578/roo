@@ -1,5 +1,4 @@
 import axios from 'axios';
-import UrlPattern from 'url-pattern';
 import DataSource from './DataSource';
 
 export default class GithubDataSource extends DataSource {
@@ -15,14 +14,15 @@ export default class GithubDataSource extends DataSource {
   }
 
   syncParams() {
-    this.params = this.parseParams(
+    this.parseParams(
       // pr
-      new UrlPattern('https\\://github.com/:owner/:repo/pull/:pr(/*)'),
+      'https\\://github.com/:owner/:repo/pull/:pr(/*)',
       // commit
-      new UrlPattern('https\\://github.com/:owner/:repo/commit/:commit(/*)'),
-      // index, tree, blob, commit
-      new UrlPattern('https\\://github.com/:owner/:repo(/:type)'),
-      new UrlPattern('https\\://github.com/:owner/:repo(/:type/:head(/*))')
+      'https\\://github.com/:owner/:repo/commit/:commit(/*)',
+      // branches
+      'https\\://github.com/:owner/:repo/tree/:head(/*)',
+      // other pages, simply show explorer
+      'https\\://github.com/:owner/:repo(/*)'
     );
 
     return this.params;

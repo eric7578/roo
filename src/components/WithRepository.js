@@ -8,13 +8,13 @@ const WithRepository = props => {
   const [repo, setRepo] = useState(null);
   const [params, setParams] = useState(null);
 
-  useEffect(() => {
-    props.getRepo().then(setRepo);
-  }, []);
-
   useLocationEffect(() => {
     setParams(props.syncParams());
   });
+
+  useEffect(() => {
+    props.getRepo().then(setRepo);
+  }, []);
 
   if (!repo || !params) {
     return null;
@@ -26,7 +26,7 @@ const WithRepository = props => {
   };
 
   if (!params.pr && !params.commit) {
-    ctx.head = repo.defaultBranch;
+    ctx.head = params.head || repo.defaultBranch;
   }
 
   return <Repository.Provider {...props} value={ctx} />;

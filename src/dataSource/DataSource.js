@@ -1,3 +1,5 @@
+import UrlPattern from 'url-pattern';
+
 function compress(raw) {
   return raw.map(({ name, token, asDefault }) => {
     const compressed = {
@@ -63,9 +65,13 @@ export default class DataSource {
     const url = hashIndex < 0 ? href : href.slice(0, hashIndex);
 
     for (const pattern of patterns) {
-      const params = pattern.match(url);
+      const urlPattern = new UrlPattern(pattern, {
+        segmentValueCharset: 'a-zA-Z0-9-_~ %.'
+      });
+      const params = urlPattern.match(url);
       if (params) {
-        return params;
+        this.params = params;
+        return;
       }
     }
   }
