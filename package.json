@@ -4,9 +4,10 @@
   "description": "Github viewer extension",
   "main": "index.js",
   "scripts": {
-    "start": "webpack --config=tool/webpack.config.dev.js",
+    "build": "webpack --config tool/webpack.config.prod.js",
+    "start": "webpack --config tool/webpack.config.dev.js",
     "test": "jest",
-    "watch": "webpack --watch --config=tool/webpack.config.dev.js"
+    "watch": "webpack --watch --config tool/webpack.config.dev.js"
   },
   "repository": "git+https://github.com/eric7578/roo.git",
   "author": "",
