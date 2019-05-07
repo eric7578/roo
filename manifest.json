@@ -10,14 +10,14 @@
   ],
   "background": {
     "scripts": [
-      "build/background/watch.js",
-      "build/background/browserEvent.js"
+      "background/watch.js",
+      "background/browserEvent.js"
     ]
   },
   "content_scripts": [
     {
       "matches": ["*://*.github.com/*"],
-      "js": ["build/main.js"]
+      "js": ["src/main.js"]
     }
   ]
 }

@@ -4,9 +4,9 @@
   "description": "Github viewer extension",
   "main": "index.js",
   "scripts": {
-    "build": "parcel build src/main.js src/background/*.js --experimental-scope-hoisting -d build",
-    "watch": "parcel watch src/main.js src/background/*.js -d build",
-    "test": "jest"
+    "start": "webpack --config=tool/webpack.config.dev.js",
+    "test": "jest",
+    "watch": "webpack --watch --config=tool/webpack.config.dev.js"
   },
   "repository": "git+https://github.com/eric7578/roo.git",
   "author": "",
@@ -20,22 +20,27 @@
     "@babel/plugin-transform-runtime": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
     "@babel/preset-react": "^7.0.0",
+    "@babel/runtime": "^7.4.4",
+    "babel-loader": "^8.0.5",
+    "babel-plugin-styled-components": "^1.10.0",
+    "copy-webpack-plugin": "^5.0.3",
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.12.1",
+    "jest": "^24.8.0",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.2",
+    "webpack-merge": "^4.2.1"
+  },
+  "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.17",
     "@fortawesome/free-solid-svg-icons": "^5.8.1",
     "@fortawesome/react-fontawesome": "^0.1.4",
     "axios": "^0.18.0",
-    "babel-plugin-styled-components": "^1.10.0",
-    "enzyme": "^3.9.0",
-    "enzyme-adapter-react-16": "^1.12.1",
     "global": "^4.3.2",
-    "jest": "^24.7.1",
-    "parcel": "^1.12.3",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "styled-components": "^4.2.0",
     "url-pattern": "^1.0.3"
-  },
-  "dependencies": {
-    "styled-components": "^4.2.0"
   }
 }
