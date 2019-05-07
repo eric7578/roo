@@ -6,7 +6,7 @@ import Tree from './Tree';
 import useTree from '../components/hooks/useTree';
 
 const PullRequest = props => {
-  const {PRBlobNode} = useContext(Renderer);
+  const {PrNode} = useContext(Renderer);
   const {repo} = useContext(Repository);
   const [flattenTree, setFlattenTree] = useState([]);
   const {state} = useTree(flattenTree);
@@ -20,7 +20,7 @@ const PullRequest = props => {
       {...state}
       root
       type='tree'
-      blobNodeComponent={PRBlobNode}
+      blobNodeComponent={PrNode}
     />
   );
 }

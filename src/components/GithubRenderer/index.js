@@ -1,9 +1,9 @@
-import BlobNode from './BlobNode';
-import PRBlobNode from './PRBlobNode';
-import CommitBlobNode from './CommitBlobNode';
+import HeadNode from './HeadNode';
+import PrNode from './PrNode';
+import CommitNode from './CommitNode';
 
 export {
-  BlobNode,
-  PRBlobNode,
-  CommitBlobNode
+  HeadNode,
+  CommitNode,
+  PrNode
 };

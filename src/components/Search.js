@@ -7,7 +7,7 @@ import useTree from '../components/hooks/useTree';
 import useDelay from './hooks/useDelay';
 
 const Search = props => {
-  const {BlobNode} = useContext(Renderer);
+  const {HeadNode} = useContext(Renderer);
   const {repo} = useContext(Repository);
   const [flattenTree, setFlattenTree] = useState([]);
   const {state} = useTree(flattenTree);
@@ -38,7 +38,7 @@ const Search = props => {
           {...state}
           root
           type='tree'
-          blobNodeComponent={BlobNode}
+          blobNodeComponent={HeadNode}
         />
       }
     </div>

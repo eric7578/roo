@@ -41,9 +41,4 @@ const WithRepository = props => {
   );
 }
 
-WithRepository.propTypes = {
-  syncParams: PropTypes.func.isRequired,
-  getRepo: PropTypes.func.isRequired
-};
-
 export default WithRepository;

@@ -7,7 +7,7 @@ import useTree, {ROOT_SHA} from './hooks/useTree';
 
 const Head = props => {
   const {state, expandTree, resetTree} = useTree();
-  const {BlobNode} = useContext(Renderer);
+  const {HeadNode} = useContext(Renderer);
   const {repo} = useContext(Repository);
 
   const onExpandTree = sha => {
@@ -24,7 +24,7 @@ const Head = props => {
       {...state}
       root
       type='tree'
-      blobNodeComponent={BlobNode}
+      blobNodeComponent={HeadNode}
       onExpandTree={onExpandTree}
     />
   );

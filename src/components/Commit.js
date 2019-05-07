@@ -6,7 +6,7 @@ import Tree from './Tree';
 import useTree from '../components/hooks/useTree';
 
 const Commit = props => {
-  const {CommitBlobNode} = useContext(Renderer);
+  const {CommitNode} = useContext(Renderer);
   const {repo} = useContext(Repository);
   const [flattenTree, setFlattenTree] = useState([]);
   const {state} = useTree(flattenTree);
@@ -20,7 +20,7 @@ const Commit = props => {
       {...state}
       root
       type='tree'
-      blobNodeComponent={CommitBlobNode}
+      blobNodeComponent={CommitNode}
     />
   );
 }
