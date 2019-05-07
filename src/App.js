@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import WithRepository, { Repository } from './components/WithRepository';
+import React, {useState} from 'react';
+import WithRepository, {Repository} from './components/WithRepository';
 import Head from './components/Head';
 import Commit from './components/Commit';
 import Explorer from './components/Explorer';
-import dataSource from './dataSource';
 import Auth from './components/Auth';
 import Search from './components/Search';
 import PullRequest from './components/PullRequest';
@@ -22,30 +21,21 @@ const App = props => {
     <Explorer>
       <button onClick={onToggleSearch}>Search</button>
       <button onClick={onToggleAuth}>Auth</button>
-      <WithRepository
-        syncParams={dataSource.syncParams}
-        getRepo={dataSource.getRepo}
-      >
+      <WithRepository>
         <WithRenderer>
           <Repository.Consumer>
-            {({ pr, head, commit }) =>
+            {({params, repo}) =>
               <>
                 <Toggleable isOpen={panel === 'auth'}>
-                  <Auth
-                    getAuth={dataSource.getAuth}
-                    setAuth={auth => {
-                      dataSource.setAuth(auth);
-                      dataSource.syncAuth();
-                    }}
-                  />
+                  <Auth />
                 </Toggleable>
                 <Toggleable isOpen={panel === 'search'}>
-                  <Search onSearch={dataSource.searchPath} />
+                  <Search />
                 </Toggleable>
                 <Toggleable isOpen={panel === 'tree'}>
-                  {pr && <PullRequest pr={pr} onGetPR={dataSource.getPullRequest} />}
-                  {commit && <Commit commit={commit} onGetCommit={dataSource.getCommit} />}
-                  {head && <Head head={head} onLoadTree={dataSource.getNodes} />}
+                  {params.pr && <PullRequest pr={params.pr} />}
+                  {params.commit && <Commit commit={params.commit} />}
+                  {!params.pr && !params.commit && <Head head={params.head || repo.defaultBranch} />}
                 </Toggleable>
               </>
             }

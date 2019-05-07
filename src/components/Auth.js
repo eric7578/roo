@@ -1,83 +1,65 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, {useState, useContext}  from 'react';
+import {Repository} from './WithRepository';
 
 const Auth = props => {
-  const [auth, setAuth] = useState(() => props.getAuth());
-
-  const onChangeDefault = index => e => {
-    setAuth(auth.map((item, i) => {
-      return {
-        ...item,
-        asDefault: i === index && e.target.checked
-      };
-    }));
-  }
-
-  const onEdit = (field, index) => e => {
-    setAuth([
-      ...auth.slice(0, index),
-      {
-        ...auth[index],
-        [field]: e.target.value
-      },
-      ...auth.slice(index + 1)
-    ]);
-  }
-
-  const onDelete = index => e => {
-    setAuth([
-      ...auth.slice(0, index),
-      ...auth.slice(index + 1)
-    ]);
-  }
+  const {auth} = useContext(Repository);
+  const [editIndex, setEditIndex] = useState();
 
   const onAdd = e => {
-    setAuth([
-      ...auth,
-      {
-        edit: true,
-        asDefault: auth.length === 0,
-        name: '',
-        token: ''
-      }
-    ]);
+    auth.modify(auth.value.length);
+  }
+
+  const onEdit = (index, field) => e => {
+    auth.modify(index, {
+      ...auth.value[index],
+      [field]: e.target.value
+    });
   }
 
   const onSubmit = e => {
     e.preventDefault();
-
-    const nextAuth = auth.map(({ edit, ...item }) => item);
-    setAuth(nextAuth);
-    props.setAuth(nextAuth);
-  }
-
-  const onCancel = e => {
-    setAuth(props.getAuth());
+    auth.save();
   }
 
   return (
     <form onSubmit={onSubmit}>
       <ul>
-        {auth.map(({ name, edit, asDefault }, idx) =>
+        {auth.value.map(({name, token}, idx) =>
           <li key={idx}>
-            <input type='checkbox' checked={asDefault} onChange={onChangeDefault(idx)} />
-            {!edit && <span>{name}</span>}
-            {edit && <input type='text' onChange={onEdit('name', idx)} />}
-            {edit && <input type='text' onChange={onEdit('token', idx)} />}
-            <input type='button' value='del' onClick={onDelete(idx)} />
+            <input
+              type='checkbox'
+              checked={idx === auth.selected}
+              onChange={e => auth.select(idx)}
+            />
+            {idx === editIndex
+              ? <span>{name}</span>
+              : (
+                <>
+                  <input
+                    type='text'
+                    value={name}
+                    onChange={onEdit(idx, 'name')}
+                  />
+                  <input
+                    type='text'
+                    value={token}
+                    onChange={onEdit(idx, 'token')}
+                  />
+                </>
+              )
+            }
+            <input
+              type='button'
+              value='del'
+              onClick={e => auth.remove(idx)}
+            />
           </li>
         )}
       </ul>
-      <input type='button' value='cancel' onClick={onCancel} />
       <input type='submit' value='save' />
       <input type='button' value='Add account' onClick={onAdd} />
     </form>
   );
 }
-
-Auth.propTypes = {
-  getAuth: PropTypes.func.isRequired,
-  setAuth: PropTypes.func.isRequired
-};
 
 export default Auth;

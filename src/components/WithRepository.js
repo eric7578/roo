@@ -1,35 +1,44 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, {createContext, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
-import useLocationEffect from './hooks/useLocationEffect';
+import useParams from './hooks/useParams';
+import useAuth from './hooks/useAuth';
+import * as githubDataSource from '../dataSource/github';
 
 export const Repository = createContext(null);
 
 const WithRepository = props => {
+  const params = useParams([
+    'https\\://github.com/:owner/:repo/pull/:pr(/*)',       // pr
+    'https\\://github.com/:owner/:repo/commit/:commit(/*)', // commit
+    'https\\://github.com/:owner/:repo/tree/:head(/*)',     // branches
+    'https\\://github.com/:owner/:repo(/*)'                 // other pages, simply show explorer
+  ]);
+  const auth = useAuth('github.com');
   const [repo, setRepo] = useState(null);
-  const [params, setParams] = useState(null);
-
-  useLocationEffect(() => {
-    setParams(props.syncParams());
-  });
 
   useEffect(() => {
-    props.getRepo().then(setRepo);
-  }, []);
+    const token = auth.value && auth.value[auth.selected]
+      ? auth.value[auth.selected].token
+      : null;
+    const dataSource = githubDataSource.create(params.owner, params.repo, token);
+    dataSource.getRepo().then(repo => {
+      setRepo({
+        ...repo,
+        ...dataSource
+      });
+    });
+  }, [params.owner, params.repo, auth.selected]);
 
-  if (!repo || !params) {
-    return null;
-  }
-
-  const ctx = {
-    ...repo,
-    ...params
-  };
-
-  if (!params.pr && !params.commit) {
-    ctx.head = params.head || repo.defaultBranch;
-  }
-
-  return <Repository.Provider {...props} value={ctx} />;
+  return repo && (
+    <Repository.Provider
+      {...props}
+      value={{
+        repo,
+        params,
+        auth
+      }}
+    />
+  );
 }
 
 WithRepository.propTypes = {

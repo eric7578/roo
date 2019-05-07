@@ -1,16 +1,18 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import PropTypes from 'prop-types';
-import { Renderer } from './WithRenderer';
+import {Renderer} from './WithRenderer';
+import {Repository} from './WithRepository';
 import Tree from './Tree';
 import useTree from '../components/hooks/useTree';
 
 const PullRequest = props => {
-  const { PRBlobNode } = useContext(Renderer);
+  const {PRBlobNode} = useContext(Renderer);
+  const {repo} = useContext(Repository);
   const [flattenTree, setFlattenTree] = useState([]);
-  const { state } = useTree(flattenTree);
+  const {state} = useTree(flattenTree);
 
   useEffect(() => {
-    props.onGetPR(props.pr).then(setFlattenTree);
+    repo.getPullRequest(props.pr).then(setFlattenTree);
   }, [props.pr]);
 
   return flattenTree.length > 0 && (
@@ -24,8 +26,7 @@ const PullRequest = props => {
 }
 
 PullRequest.propTypes = {
-  pr: PropTypes.string.isRequired,
-  onGetPR: PropTypes.func.isRequired
+  pr: PropTypes.string.isRequired
 };
 
 export default PullRequest;

@@ -1,20 +1,22 @@
-import React, { useEffect, useContext } from 'react';
+import React, {useEffect, useContext} from 'react';
 import PropTypes from 'prop-types';
 import Tree from './Tree';
-import { Renderer } from './WithRenderer';
-import useTree, { ROOT_SHA } from './hooks/useTree';
+import {Renderer} from './WithRenderer';
+import {Repository} from './WithRepository';
+import useTree, {ROOT_SHA} from './hooks/useTree';
 
 const Head = props => {
-  const { state, expandTree, resetTree } = useTree();
-  const { BlobNode } = useContext(Renderer);
+  const {state, expandTree, resetTree} = useTree();
+  const {BlobNode} = useContext(Renderer);
+  const {repo} = useContext(Repository);
 
   const onExpandTree = sha => {
-    props.onLoadTree(sha).then(tree => expandTree(sha, tree));
+    repo.getNodes(sha).then(tree => expandTree(sha, tree));
   }
 
   useEffect(() => {
     resetTree();
-    props.onLoadTree(props.head).then(tree => expandTree(ROOT_SHA, tree));
+    repo.getNodes(props.head).then(tree => expandTree(ROOT_SHA, tree));
   }, [props.head]);
 
   return (
@@ -29,8 +31,7 @@ const Head = props => {
 }
 
 Head.propTypes = {
-  head: PropTypes.string.isRequired,
-  onLoadTree: PropTypes.func.isRequired
+  head: PropTypes.string.isRequired
 };
 
 export default Head;

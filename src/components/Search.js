@@ -1,18 +1,20 @@
-import React, { useState, useContext } from 'react';
+import React, {useState, useContext} from 'react';
 import PropTypes from 'prop-types';
 import Tree from './Tree';
-import { Renderer } from './WithRenderer';
+import {Renderer} from './WithRenderer';
+import {Repository} from './WithRepository';
 import useTree from '../components/hooks/useTree';
 import useDelay from './hooks/useDelay';
 
 const Search = props => {
-  const { BlobNode } = useContext(Renderer);
+  const {BlobNode} = useContext(Renderer);
+  const {repo} = useContext(Repository);
   const [flattenTree, setFlattenTree] = useState([]);
-  const { state } = useTree(flattenTree);
+  const {state} = useTree(flattenTree);
 
   const submitSearch = searchText => {
     if (searchText) {
-      props.onSearch(searchText).then(setFlattenTree);
+      repo.searchPath(searchText).then(setFlattenTree);
     }
   }
 
@@ -44,8 +46,7 @@ const Search = props => {
 }
 
 Search.propTypes = {
-  delay: PropTypes.number,
-  onSearch: PropTypes.func
+  delay: PropTypes.number
 };
 
 Search.defaultProps = {
