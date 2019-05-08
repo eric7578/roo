@@ -65,7 +65,7 @@ const Explorer = props => {
     if (!nextIsHidden) {
       setContentWidth(e.clientX);
     }
-  }, resizeRef);
+  }, resizeRef, 10);
 
   return (
     <ThemeProvider theme={theme}>
