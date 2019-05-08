@@ -7,17 +7,5 @@
     "activeTab",
     "tabs",
     "management"
-  ],
-  "background": {
-    "scripts": [
-      "background/watch.js",
-      "background/browserEvent.js"
-    ]
-  },
-  "content_scripts": [
-    {
-      "matches": ["*://*.github.com/*"],
-      "js": ["src/main.js"]
-    }
   ]
 }

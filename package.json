@@ -7,7 +7,7 @@
     "build": "webpack --config tool/webpack.config.prod.js",
     "start": "webpack --config tool/webpack.config.dev.js",
     "test": "jest",
-    "watch": "webpack --watch --config tool/webpack.config.dev.js"
+    "watch": "yarn start --watch"
   },
   "repository": "git+https://github.com/eric7578/roo.git",
   "author": "",
@@ -27,6 +27,7 @@
     "copy-webpack-plugin": "^5.0.3",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.12.1",
+    "glob": "^7.1.4",
     "jest": "^24.8.0",
     "webpack": "^4.30.0",
     "webpack-cli": "^3.3.2",

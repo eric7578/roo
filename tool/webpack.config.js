@@ -1,5 +1,6 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ManifestTemplatePlugin = require('./ManifestTemplatePlugin');
 
 const SRC = path.resolve(__dirname, '../src');
 const BUILD = path.resolve(__dirname, '../build');
@@ -7,20 +8,22 @@ const BUILD = path.resolve(__dirname, '../build');
 module.exports = {
   entry: path.join(SRC, 'main.js'),
   output: {
-    path: path.join(BUILD, 'src'),
+    path: BUILD,
     filename: 'main.js'
   },
   plugins: [
     new CopyWebpackPlugin([
       {
-        from: path.resolve(__dirname, '../manifest.json'),
-        to: path.resolve(BUILD, 'manifest.json')
-      },
-      {
         from: path.resolve(SRC, 'background'),
         to: path.resolve(BUILD, 'background')
       }
-    ])
+    ]),
+    new ManifestTemplatePlugin({
+      manifest: path.join(__dirname, '../manifest.json'),
+      output: BUILD,
+      backgroundScripts: path.join(BUILD, 'background/*.js'),
+      contentScripts: path.join(BUILD, '*.js')
+    })
   ],
   module: {
     rules: [
