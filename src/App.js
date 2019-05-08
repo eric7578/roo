@@ -17,29 +17,31 @@ const App = props => {
   const onToggleSearch = e => toggleTo('search');
   const onToggleAuth = e => toggleTo('auth');
 
+  console.log(panel);
+
   return (
     <Explorer>
       <button onClick={onToggleSearch}>Search</button>
       <button onClick={onToggleAuth}>Auth</button>
       <WithRepository>
         <WithRenderer>
-          <Repository.Consumer>
-            {({params, repo}) =>
-              <>
-                <Toggleable isOpen={panel === 'auth'}>
-                  <Auth />
-                </Toggleable>
-                <Toggleable isOpen={panel === 'search'}>
-                  <Search />
-                </Toggleable>
-                <Toggleable isOpen={panel === 'tree'}>
+          <Toggleable isOpen={panel === 'auth'}>
+            <Auth />
+          </Toggleable>
+          <Toggleable isOpen={panel === 'search'}>
+            <Search />
+          </Toggleable>
+          <Toggleable isOpen={panel === 'tree'}>
+            <Repository.Consumer>
+              {({params, repo}) =>
+                <>
                   {params.pr && <PullRequest pr={params.pr} />}
                   {params.commit && <Commit commit={params.commit} />}
                   {!params.pr && !params.commit && <Head head={params.head || repo.defaultBranch} />}
-                </Toggleable>
-              </>
-            }
-          </Repository.Consumer>
+                </>
+              }
+            </Repository.Consumer>
+          </Toggleable>
         </WithRenderer>
       </WithRepository>
     </Explorer>

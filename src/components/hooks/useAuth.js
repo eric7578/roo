@@ -93,7 +93,9 @@ function decompress(provider) {
   let selected = -1;
 
   if (compressed) {
-    for (const [index, {n, t, d}] in Object.entries(compressed)) {
+    const auth = JSON.parse(compressed);
+    for (const index in auth) {
+      const { n, t, d } = auth[index];
       if (d === 1) {
         selected = index;
       }
