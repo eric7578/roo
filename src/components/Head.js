@@ -22,7 +22,6 @@ const Head = props => {
   return (
     <Tree
       {...state}
-      root
       type='tree'
       blobNodeComponent={HeadNode}
       onExpandTree={onExpandTree}

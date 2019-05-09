@@ -1,8 +1,9 @@
-import React, { createElement, useEffect, useState } from 'react';
+import React, {createElement, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import Toggleable from './Toggleable';
+import {ROOT_SHA} from './hooks/useTree';
 
 const NodeList = styled.ol`
   list-style-type: none;
@@ -16,8 +17,9 @@ const NodeItem = styled.li`
 `;
 
 const Tree = props => {
-  const { blobNodeComponent, onExpandTree, ...blobNodeProps } = props;
-  const [isOpen, setIsOpen] = useState(props.root);
+  const {blobNodeComponent, onExpandTree, ...blobNodeProps} = props;
+  const isRoot = props.sha === ROOT_SHA;
+  const [isOpen, setIsOpen] = useState(isRoot);
 
   const onClick = e => {
     if (e.target === e.currentTarget) {
@@ -31,7 +33,7 @@ const Tree = props => {
   return (
     <div onClick={props.type === 'tree' ? onClick : undefined}>
       {props.type === 'blob' && createElement(blobNodeComponent, blobNodeProps)}
-      {props.type === 'tree' && !props.root &&
+      {props.type === 'tree' && !isRoot &&
         <>
           <FontAwesomeIcon icon={isOpen ? 'folder-open' : 'folder'} />
           {props.path}
@@ -46,9 +48,9 @@ const Tree = props => {
                   <Tree
                     {...node}
                     blobNodeComponent={blobNodeComponent}
-                    prevTrees={props.root
+                    prevTrees={isRoot
                       ? []
-                      : [ ...props.prevTrees, props.path ]
+                      : [...props.prevTrees, props.path]
                     }
                     onExpandTree={node.type === 'tree'
                       ? props.onExpandTree
@@ -76,7 +78,6 @@ const NodePropTypes = {
 
 Tree.propTypes = {
   ...NodePropTypes,
-  root: PropTypes.bool,
   tree: PropTypes.arrayOf(PropTypes.shape(NodePropTypes)),
   prevTrees: PropTypes.arrayOf(PropTypes.string),
   blobNodeComponent: PropTypes.oneOfType([
@@ -84,10 +85,6 @@ Tree.propTypes = {
     PropTypes.string
   ]).isRequired,
   onExpandTree: PropTypes.func
-};
-
-Tree.defaultProps = {
-  root: false
 };
 
 export default Tree;

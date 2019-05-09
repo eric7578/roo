@@ -18,7 +18,6 @@ const Commit = props => {
   return flattenTree.length > 0 && (
     <Tree
       {...state}
-      root
       type='tree'
       blobNodeComponent={CommitNode}
     />
