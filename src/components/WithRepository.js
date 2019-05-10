@@ -10,7 +10,8 @@ const WithRepository = props => {
   const params = useParams([
     'https\\://github.com/:owner/:repo/pull/:pr(/*)',       // pr
     'https\\://github.com/:owner/:repo/commit/:commit(/*)', // commit
-    'https\\://github.com/:owner/:repo/tree/:head(/*)',     // branches
+    'https\\://github.com/:owner/:repo/tree/:head(/*)',     // tree
+    'https\\://github.com/:owner/:repo/blob/:head(/*)',     // blob
     'https\\://github.com/:owner/:repo(/*)'                 // other pages, simply show explorer
   ]);
   const auth = useAuth('github.com');
@@ -29,7 +30,7 @@ const WithRepository = props => {
     });
   }, [params.owner, params.repo, auth.selected]);
 
-  return repo && (
+  return (
     <Repository.Provider
       {...props}
       value={{

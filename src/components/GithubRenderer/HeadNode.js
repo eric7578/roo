@@ -9,7 +9,7 @@ const HeadNode = props => {
     params.repo,
     'blob',
     params.head || repo.defaultBranch,
-    ...props.prevTrees,
+    ...props.parentPath,
     props.path
   ];
 

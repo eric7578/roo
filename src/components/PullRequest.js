@@ -17,8 +17,7 @@ const PullRequest = props => {
 
   return flattenTree.length > 0 && (
     <Tree
-      {...state}
-      type='tree'
+      tree={state.tree}
       blobNodeComponent={PrNode}
     />
   );

@@ -35,8 +35,7 @@ const Search = props => {
       />
       {flattenTree.length > 0 &&
         <Tree
-          {...state}
-          type='tree'
+          tree={state.tree}
           blobNodeComponent={HeadNode}
         />
       }

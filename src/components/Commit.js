@@ -15,10 +15,10 @@ const Commit = props => {
     repo.getCommit(props.commit).then(setFlattenTree);
   }, [props.commit]);
 
+
   return flattenTree.length > 0 && (
     <Tree
-      {...state}
-      type='tree'
+      tree={state.tree}
       blobNodeComponent={CommitNode}
     />
   );
