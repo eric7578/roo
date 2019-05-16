@@ -7,6 +7,8 @@ export function create(owner, repo, token) {
 
   if (token) {
     github.defaults.headers.Authorization = `token ${token}`;
+  } else {
+    delete github.defaults.headers.Authorization;
   }
 
   return {

@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import WithRepository, {Repository} from './components/WithRepository';
+import React, {useState, useEffect} from 'react';
+import url from 'url';
 import Head from './components/Head';
 import Commit from './components/Commit';
 import Explorer from './components/Explorer';
@@ -7,44 +7,64 @@ import Auth from './components/Auth';
 import Search from './components/Search';
 import PullRequest from './components/PullRequest';
 import Toggleable from './components/Toggleable';
-import WithRenderer from './components/WithRenderer';
+import {Renderer, Repository} from './context';
+import useParams from './components/hooks/useParams';
+import * as GithubRenderer from './components/GithubRenderer';
+import * as githubDataSource from './dataSource/github';
 import './icon';
 
 const App = props => {
-  const [panel, setPanel] = useState('tree');
+  // Renderer Context
+  const [renderer, setRenderer] = useState(() => {
+    const { hostname } = url.parse(window.location.href);
+    switch (hostname) {
+      case 'github.com':
+        return GithubRenderer;
+      default:
+        throw new Error(`Can't find a renderer to support ${hostname}`);
+    }
+  });
 
+  // Repository Context
+  const params = useParams([
+    'https\\://github.com/:owner/:repo/pull/:pr(/*)',       // pr
+    'https\\://github.com/:owner/:repo/commit/:commit(/*)', // commit
+    'https\\://github.com/:owner/:repo/tree/:head(/*)',     // tree
+    'https\\://github.com/:owner/:repo/blob/:head(/*)',     // blob
+    'https\\://github.com/:owner/:repo(/*)'                 // other pages, simply show explorer
+  ]);
+  const [repository, setRepository] = useState();
+  const [token, setToken] = useState('');
+  useEffect(() => {
+    const dataSource = githubDataSource.create(params.owner, params.repo, token);
+    dataSource.getRepo().then(repo => setRepository({...repo, ...dataSource}));
+  }, [token]);
+
+  const [panel, setPanel] = useState('tree');
   const toggleTo = target => setPanel(panel === target ? 'tree' : target);
   const onToggleSearch = e => toggleTo('search');
   const onToggleAuth = e => toggleTo('auth');
 
-  console.log(panel);
-
   return (
-    <Explorer>
-      <button onClick={onToggleSearch}>Search</button>
-      <button onClick={onToggleAuth}>Auth</button>
-      <WithRepository>
-        <WithRenderer>
+    <Renderer.Provider value={renderer}>
+      <Repository.Provider value={{repo: repository, params}}>
+        <Explorer>
+          <button onClick={onToggleSearch}>Search</button>
+          <button onClick={onToggleAuth}>Auth</button>
           <Toggleable isOpen={panel === 'auth'}>
-            <Auth />
+            <Auth prefix='github.com' onChangeToken={token => setToken(token || '')} />
           </Toggleable>
           <Toggleable isOpen={panel === 'search'}>
             <Search />
           </Toggleable>
           <Toggleable isOpen={panel === 'tree'}>
-            <Repository.Consumer>
-              {({params, repo}) =>
-                <>
-                  {params.pr && <PullRequest pr={params.pr} />}
-                  {params.commit && <Commit commit={params.commit} />}
-                  {!params.pr && !params.commit && <Head head={params.head || repo.defaultBranch} />}
-                </>
-              }
-            </Repository.Consumer>
+            {params.pr && <PullRequest pr={params.pr} />}
+            {params.commit && <Commit commit={params.commit} />}
+            {!params.pr && !params.commit && repository && <Head head={params.head || repository.defaultBranch} />}
           </Toggleable>
-        </WithRenderer>
-      </WithRepository>
-    </Explorer>
+        </Explorer>
+      </Repository.Provider>
+    </Renderer.Provider>
   );
 }
 

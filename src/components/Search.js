@@ -1,8 +1,7 @@
 import React, {useState, useContext} from 'react';
 import PropTypes from 'prop-types';
 import Tree from './Tree';
-import {Renderer} from './WithRenderer';
-import {Repository} from './WithRepository';
+import {Renderer, Repository} from '../context';
 import useTree from '../components/hooks/useTree';
 import useDelay from './hooks/useDelay';
 

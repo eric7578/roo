@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react';
 import PropTypes from 'prop-types';
-import {Renderer} from './WithRenderer';
-import {Repository} from './WithRepository';
+import {Renderer, Repository} from '../context';
 import Tree from './Tree';
 import useTree from '../components/hooks/useTree';
 

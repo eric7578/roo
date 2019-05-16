@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {Repository} from '../WithRepository';
+import {Repository} from '../../context';
 
 const HeadNode = props => {
   const {params, repo} = useContext(Repository);

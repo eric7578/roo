@@ -6,3 +6,4 @@ build/
 .cache
 .env
 .vscode
+.DS_STORE

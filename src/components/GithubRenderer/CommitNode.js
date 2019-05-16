@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {Repository} from '../WithRepository';
+import {Repository} from '../../context';
 
 const CommitNode = props => {
   const {params} = useContext(Repository);
