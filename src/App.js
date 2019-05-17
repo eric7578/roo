@@ -34,11 +34,6 @@ const App = props => {
     'https\\://github.com/:owner/:repo(/*)'                 // other pages, simply show explorer
   ]);
   const [repository, setRepository] = useState();
-  const [token, setToken] = useState('');
-  useEffect(() => {
-    const dataSource = githubDataSource.create(params.owner, params.repo, token);
-    dataSource.getRepo().then(repo => setRepository({...repo, ...dataSource}));
-  }, [token]);
 
   const [panel, setPanel] = useState('tree');
   const toggleTo = target => setPanel(panel === target ? 'tree' : target);
@@ -48,23 +43,29 @@ const App = props => {
   return (
     <Renderer.Provider value={renderer}>
       <Repository.Provider value={{repo: repository, params}}>
-        {repository &&
-          <Explorer>
-            <button onClick={onToggleSearch}>Search</button>
-            <button onClick={onToggleAuth}>Auth</button>
-            <Toggleable isOpen={panel === 'auth'}>
-              <Auth prefix='github.com' onChangeToken={token => setToken(token || '')} />
-            </Toggleable>
-            <Toggleable isOpen={panel === 'search'}>
-              <Search />
-            </Toggleable>
+        <Explorer>
+          <button onClick={onToggleSearch}>Search</button>
+          <button onClick={onToggleAuth}>Auth</button>
+          <Toggleable initialMount isOpen={panel === 'auth'}>
+            <Auth
+              prefix='github.com'
+              onChangeToken={token => {
+                const dataSource = githubDataSource.create(params.owner, params.repo, token);
+                dataSource.getRepo().then(repo => setRepository({...repo, ...dataSource}));
+              }}
+            />
+          </Toggleable>
+          <Toggleable isOpen={panel === 'search'}>
+            <Search />
+          </Toggleable>
+          {repository &&
             <Toggleable isOpen={panel === 'tree'}>
               {params.pr && <PullRequest pr={params.pr} />}
               {params.commit && <Commit commit={params.commit} />}
               {!params.pr && !params.commit && <Head head={params.head || repository.defaultBranch} />}
             </Toggleable>
-          </Explorer>
-        }
+          }
+        </Explorer>
       </Repository.Provider>
     </Renderer.Provider>
   );

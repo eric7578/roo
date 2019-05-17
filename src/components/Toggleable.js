@@ -2,7 +2,7 @@ import React, {useRef} from 'react';
 import PropTypes from 'prop-types';
 
 const Toggleable = props => {
-  const isOpenedBefore = useRef(false);
+  const isOpenedBefore = useRef(props.initialMount);
   if (props.isOpen) {
     isOpenedBefore.current = true;
   }
@@ -22,8 +22,13 @@ const Toggleable = props => {
 }
 
 Toggleable.propTypes = {
+  initialMount: PropTypes.bool,
   isOpen: PropTypes.bool.isRequired,
   children: PropTypes.node
+};
+
+Toggleable.defaultProps = {
+  initialMount: false
 };
 
 export default Toggleable;

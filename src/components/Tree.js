@@ -21,6 +21,10 @@ const TreeNode = props => {
   }, [defaultOpen]);
 
   useDerivedState(() => {
+    // ignore when using cache
+    if (isTree && props.tree && props.tree.length > 0) {
+      return;
+    }
     if (isOpen && onExpand) {
       onExpand(props.sha);
     }
