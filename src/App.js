@@ -12,7 +12,6 @@ import useParams from './components/hooks/useParams';
 import useDetectedTheme from './components/hooks/useDetectedTheme';
 import * as GithubRenderer from './components/GithubRenderer';
 import * as githubDataSource from './dataSource/github';
-import './icon';
 
 const App = props => {
   // theme

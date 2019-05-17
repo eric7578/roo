@@ -1,5 +1,4 @@
 import React, {useContext} from 'react';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {Repository} from '../../context';
 
 const HeadNode = props => {
@@ -14,9 +13,11 @@ const HeadNode = props => {
   ];
 
   return (
-    <a href={`https://github.com/${pathname.join('/')}`}>
-      <FontAwesomeIcon icon='file' />
-      {props.path}
+    <a
+      className={props.className}
+      href={`https://github.com/${pathname.join('/')}`}
+    >
+      {props.children}
     </a>
   );
 }

@@ -1,8 +1,9 @@
 import React, {createElement, createContext, useContext, useState, useMemo, useEffect} from 'react';
 import PropTypes from 'prop-types';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import Toggleable from './Toggleable';
 import useDerivedState from './hooks/useDerivedState';
+import {Folder, FolderOpen, File} from './icons';
+import {Theme} from '../context';
 import './Tree.css';
 
 const TreeContext = createContext();
@@ -13,6 +14,9 @@ const TreeNode = props => {
   const isBlob = props.type === 'blob';
   const [isOpen, setIsOpen] = useState(false);
   const nextLevelParentPath = useMemo(() => ([...props.parentPath, props.path]), [props.path]);
+
+  const theme = useContext(Theme);
+  const iconStyle = {fill: theme.color};
 
   useEffect(() => {
     if (isTree && defaultOpen && props.path === defaultOpen[props.depth]) {
@@ -31,18 +35,27 @@ const TreeNode = props => {
   }, isOpen);
 
   const onToggleOpen = e => {
-    if (e.target === e.currentTarget) {
-      setIsOpen(!isOpen);
-    }
+    setIsOpen(!isOpen);
   }
 
   return (
-    <div onClick={isTree ? onToggleOpen : undefined}>
-      {isBlob && createElement(blobNodeComponent, props)}
+    <div>
+      {isBlob && createElement(blobNodeComponent, {
+        ...props,
+        className: 'roo-tree-node',
+        children: (
+          <>
+            <File style={iconStyle} />
+            {props.path}
+          </>
+        )
+      })}
       {isTree &&
         <>
-          <FontAwesomeIcon icon={isOpen ? 'folder-open' : 'folder'} />
-          {props.path}
+          <div className='roo-tree-node' onClick={isTree ? onToggleOpen : undefined}>
+            {isOpen ? <FolderOpen style={iconStyle} /> : <Folder style={iconStyle} />}
+            {props.path}
+          </div>
           <Toggleable isOpen={isOpen}>
             {props.tree && props.tree.length > 0 &&
               <div className='roo-tree-node-list'>

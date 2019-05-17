@@ -8,3 +8,13 @@
   cursor: pointer;
   margin-left: 15px;
 }
+
+.roo-tree-node {
+  align-items: center;
+  display: flex;
+}
+
+.roo-tree-node svg:first-child {
+  margin-right: 3px;
+  width: 16px;
+}
