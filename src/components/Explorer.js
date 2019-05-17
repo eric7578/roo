@@ -1,12 +1,12 @@
-import React, {useRef, useState, useEffect, useLayoutEffect} from 'react';
+import React, {useRef, useState, useEffect, useLayoutEffect, useContext} from 'react';
 import PropTypes from 'prop-types';
 import document from 'global/document';
-import useDetectedTheme from './hooks/useDetectedTheme';
 import useMouseDragging from './hooks/useMouseDragging';
+import {Theme} from '../context';
 import './Explorer.css';
 
 const Explorer = props => {
-  const theme = useDetectedTheme();
+  const theme = useContext(Theme);
   const [contentWidth, setContentWidth] = useState();
   const [isHidden, setIsHidden] = useState(false);
   const resizeRef = useRef();
