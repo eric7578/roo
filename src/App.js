@@ -48,21 +48,23 @@ const App = props => {
   return (
     <Renderer.Provider value={renderer}>
       <Repository.Provider value={{repo: repository, params}}>
-        <Explorer>
-          <button onClick={onToggleSearch}>Search</button>
-          <button onClick={onToggleAuth}>Auth</button>
-          <Toggleable isOpen={panel === 'auth'}>
-            <Auth prefix='github.com' onChangeToken={token => setToken(token || '')} />
-          </Toggleable>
-          <Toggleable isOpen={panel === 'search'}>
-            <Search />
-          </Toggleable>
-          <Toggleable isOpen={panel === 'tree'}>
-            {params.pr && <PullRequest pr={params.pr} />}
-            {params.commit && <Commit commit={params.commit} />}
-            {!params.pr && !params.commit && repository && <Head head={params.head || repository.defaultBranch} />}
-          </Toggleable>
-        </Explorer>
+        {repository &&
+          <Explorer>
+            <button onClick={onToggleSearch}>Search</button>
+            <button onClick={onToggleAuth}>Auth</button>
+            <Toggleable isOpen={panel === 'auth'}>
+              <Auth prefix='github.com' onChangeToken={token => setToken(token || '')} />
+            </Toggleable>
+            <Toggleable isOpen={panel === 'search'}>
+              <Search />
+            </Toggleable>
+            <Toggleable isOpen={panel === 'tree'}>
+              {params.pr && <PullRequest pr={params.pr} />}
+              {params.commit && <Commit commit={params.commit} />}
+              {!params.pr && !params.commit && <Head head={params.head || repository.defaultBranch} />}
+            </Toggleable>
+          </Explorer>
+        }
       </Repository.Provider>
     </Renderer.Provider>
   );
