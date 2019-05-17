@@ -1,0 +1,10 @@
+.roo-tree-node-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.roo-tree-node-item {
+  cursor: pointer;
+  margin-left: 15px;
+}

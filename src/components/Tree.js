@@ -1,22 +1,11 @@
 import React, {createElement, createContext, useContext, useState, useMemo, useEffect} from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import Toggleable from './Toggleable';
 import useDerivedState from './hooks/useDerivedState';
+import './Tree.css';
 
 const TreeContext = createContext();
-
-const NodeList = styled.ol`
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-`;
-
-const NodeItem = styled.li`
-  cursor: pointer;
-  margin-left: 15px;
-`;
 
 const TreeNode = props => {
   const {defaultOpen, blobNodeComponent, onExpand} = useContext(TreeContext);
@@ -52,10 +41,10 @@ const TreeNode = props => {
           {props.path}
           <Toggleable isOpen={isOpen}>
             {props.tree && props.tree.length > 0 &&
-              <NodeList>
+              <div className='roo-tree-node-list'>
                 {props.tree.map(node => {
                   return (
-                    <NodeItem key={node.sha || node.path}>
+                    <div key={node.sha || node.path} className='roo-tree-node-item'>
                       <TreeNode
                         {...node}
                         parentPath={nextLevelParentPath}
@@ -65,10 +54,10 @@ const TreeNode = props => {
                         defaultOpen={props.defaultOpen}
                         onExpand={props.onExpand}
                       />
-                    </NodeItem>
+                    </div>
                   );
                 })}
-              </NodeList>
+              </div>
             }
           </Toggleable>
         </>

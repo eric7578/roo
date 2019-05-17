@@ -1,12 +1,29 @@
+import React, {useRef} from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 
-const Toggleable = styled.div`
-  display: ${props => props.isOpen ? 'inherit' : 'none'};
-`;
+const Toggleable = props => {
+  const isOpenedBefore = useRef(false);
+  if (props.isOpen) {
+    isOpenedBefore.current = true;
+  }
+
+  if (!isOpenedBefore.current) {
+    return null;
+  }
+
+  return (
+    <div
+      className={props.className}
+      style={{display: props.isOpen ? undefined : 'none'}
+    }>
+      {props.children}
+    </div>
+  );
+}
 
 Toggleable.propTypes = {
-  isOpen: PropTypes.bool.isRequired
+  isOpen: PropTypes.bool.isRequired,
+  children: PropTypes.node
 };
 
 export default Toggleable;

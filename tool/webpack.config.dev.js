@@ -8,5 +8,23 @@ module.exports = merge(require('./webpack.config.js'), {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('development')
     })
-  ]
+  ],
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: 'style-loader',
+            options: {
+              sourceMap: true
+            }
+          },
+          {
+            loader: 'css-loader'
+          }
+        ]
+      }
+    ]
+  }
 });
