@@ -23,6 +23,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/runtime": "^7.4.4",
     "babel-loader": "^8.0.5",
+    "babel-plugin-styled-components": "^1.10.0",
     "copy-webpack-plugin": "^5.0.3",
     "css-loader": "^2.1.1",
     "enzyme": "^3.9.0",
@@ -37,10 +38,12 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "classnames": "^2.2.6",
     "global": "^4.3.2",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "styled-components": "^4.2.0",
     "url-pattern": "^1.0.3"
   }
 }

@@ -1,19 +1,50 @@
-import React, {useRef, useState, useEffect, useLayoutEffect, useContext} from 'react';
+import React, {useRef, useState, useEffect, useLayoutEffect} from 'react';
 import PropTypes from 'prop-types';
 import document from 'global/document';
+import styled from 'styled-components';
 import useMouseDragging from './hooks/useMouseDragging';
-import {Theme} from '../context';
-import './Explorer.css';
+
+const Wrapper = styled.div`
+  background-color: #21242a;
+  height: 100vh;
+  left: 0;
+  overflow: auto;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  height: 100vh;
+  overflow: auto;
+`;
+
+const ResizeDetect = styled.div`
+  cursor: col-resize;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 3px;
+`;
+
+const ToggleButton = styled.input.attrs({type: 'button'})`
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 50px;
+  height: 50px;
+`;
 
 const Explorer = props => {
-  const theme = useContext(Theme);
   const [contentWidth, setContentWidth] = useState();
   const [isHidden, setIsHidden] = useState(false);
   const resizeRef = useRef();
   const contentRef = useRef();
 
   useEffect(() => {
-    const { width } = contentRef.current.getBoundingClientRect();
+    const {width} = contentRef.current.getBoundingClientRect();
     setContentWidth(width);
   }, []);
 
@@ -31,24 +62,15 @@ const Explorer = props => {
   }, [isHidden, contentWidth]);
 
   return (
-    <div
-      className='roo-explorer'
-      style={{
-        backgroundColor: theme.backgroundColor,
-        color: theme.color
-      }}
-    >
+    <Wrapper>
       {isHidden &&
-        <input
-          type='button'
+        <ToggleButton
           value='Open'
-          className='roo-explorer-toggle-button'
           onClick={e => setIsHidden(false)}
         />
       }
       {!isHidden &&
-        <div
-          className='roo-explorer-content-wrapper'
+        <ContentWrapper
           ref={contentRef}
           style={{
             width: contentWidth,
@@ -56,10 +78,10 @@ const Explorer = props => {
           }}
         >
           {props.children}
-        </div>
+        </ContentWrapper>
       }
-      <div ref={resizeRef} className='roo-explorer-resize-detect' />
-    </div>
+      <ResizeDetect ref={resizeRef} />
+    </Wrapper>
   );
 }
 
@@ -69,7 +91,7 @@ Explorer.propTypes = {
 };
 
 Explorer.defaultProps = {
-  minResizeWidth: 200
+  minResizeWidth: 300
 };
 
 export default Explorer;

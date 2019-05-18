@@ -1,10 +1,32 @@
 import React, {createElement, createContext, useContext, useState, useMemo, useEffect} from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import Toggleable from './Toggleable';
 import useDerivedState from './hooks/useDerivedState';
 import {Folder, FolderOpen, File} from './icons';
-import {Theme} from '../context';
-import './Tree.css';
+
+const ChildTree = styled.ul`
+  list-style-type: none;
+  margin: 0 0 0 15px;
+  padding: 0;
+`;
+
+const ChildTreeNode = styled.li`
+  cursor: pointer;
+`;
+
+const NodePath = styled.div`
+  align-items: center;
+  display: flex;
+  color: #fafafa;
+
+  svg {
+    fill: #fff;
+    margin-right: 3px;
+    min-width: 16px;
+    width: 16px;
+  }
+`;
 
 const TreeContext = createContext();
 
@@ -14,9 +36,6 @@ const TreeNode = props => {
   const isBlob = props.type === 'blob';
   const [isOpen, setIsOpen] = useState(false);
   const nextLevelParentPath = useMemo(() => ([...props.parentPath, props.path]), [props.path]);
-
-  const theme = useContext(Theme);
-  const iconStyle = {fill: theme.color};
 
   useEffect(() => {
     if (isTree && defaultOpen && props.path === defaultOpen[props.depth]) {
@@ -39,29 +58,28 @@ const TreeNode = props => {
   }
 
   return (
-    <div>
+    <>
       {isBlob && createElement(blobNodeComponent, {
         ...props,
-        className: 'roo-tree-node',
         children: (
-          <>
-            <File style={iconStyle} />
+          <NodePath>
+            <File />
             {props.path}
-          </>
+          </NodePath>
         )
       })}
       {isTree &&
         <>
-          <div className='roo-tree-node' onClick={isTree ? onToggleOpen : undefined}>
-            {isOpen ? <FolderOpen style={iconStyle} /> : <Folder style={iconStyle} />}
+          <NodePath onClick={isTree ? onToggleOpen : undefined}>
+            {isOpen ? <FolderOpen /> : <Folder />}
             {props.path}
-          </div>
+          </NodePath>
           <Toggleable isOpen={isOpen}>
             {props.tree && props.tree.length > 0 &&
-              <div className='roo-tree-node-list'>
+              <ChildTree>
                 {props.tree.map(node => {
                   return (
-                    <div key={node.sha || node.path} className='roo-tree-node-item'>
+                    <ChildTreeNode key={node.sha || node.path}>
                       <TreeNode
                         {...node}
                         parentPath={nextLevelParentPath}
@@ -71,15 +89,15 @@ const TreeNode = props => {
                         defaultOpen={props.defaultOpen}
                         onExpand={props.onExpand}
                       />
-                    </div>
+                    </ChildTreeNode>
                   );
                 })}
-              </div>
+              </ChildTree>
             }
           </Toggleable>
         </>
       }
-    </div>
+    </>
   );
 }
 

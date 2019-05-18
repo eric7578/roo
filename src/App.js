@@ -1,5 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import url from 'url';
+import styled from 'styled-components';
 import Head from './components/Head';
 import Commit from './components/Commit';
 import Explorer from './components/Explorer';
@@ -7,15 +8,19 @@ import Auth from './components/Auth';
 import Search from './components/Search';
 import PullRequest from './components/PullRequest';
 import Toggleable from './components/Toggleable';
-import {Renderer, Repository, Theme} from './context';
+import ActitivyBar from './components/ActivityBar';
+import {Renderer, Repository} from './context';
 import useParams from './components/hooks/useParams';
-import useDetectedTheme from './components/hooks/useDetectedTheme';
 import * as GithubRenderer from './components/GithubRenderer';
 import * as githubDataSource from './dataSource/github';
 
+const Tab = styled(Toggleable)`
+  width: 230px;
+  padding: 18px;
+`;
+
 const App = props => {
-  // theme
-  const theme = useDetectedTheme();
+  const [tab, setTab] = useState('tree');
 
   // Renderer Context
   const [renderer, setRenderer] = useState(() => {
@@ -38,41 +43,33 @@ const App = props => {
   ]);
   const [repository, setRepository] = useState();
 
-  const [panel, setPanel] = useState('tree');
-  const toggleTo = target => setPanel(panel === target ? 'tree' : target);
-  const onToggleSearch = e => toggleTo('search');
-  const onToggleAuth = e => toggleTo('auth');
-
   return (
-    <Theme.Provider value={theme}>
-      <Renderer.Provider value={renderer}>
-        <Repository.Provider value={{repo: repository, params}}>
-          <Explorer>
-            <button onClick={onToggleSearch}>Search</button>
-            <button onClick={onToggleAuth}>Auth</button>
-            <Toggleable initialMount isOpen={panel === 'auth'}>
-              <Auth
-                prefix='github.com'
-                onChangeToken={token => {
-                  const dataSource = githubDataSource.create(params.owner, params.repo, token);
-                  dataSource.getRepo().then(repo => setRepository({...repo, ...dataSource}));
-                }}
-              />
-            </Toggleable>
-            <Toggleable isOpen={panel === 'search'}>
-              <Search />
-            </Toggleable>
-            {repository &&
-              <Toggleable isOpen={panel === 'tree'}>
-                {params.pr && <PullRequest pr={params.pr} />}
-                {params.commit && <Commit commit={params.commit} />}
-                {!params.pr && !params.commit && <Head head={params.head || repository.defaultBranch} />}
-              </Toggleable>
-            }
-          </Explorer>
-        </Repository.Provider>
-      </Renderer.Provider>
-    </Theme.Provider>
+    <Renderer.Provider value={renderer}>
+      <Repository.Provider value={{repo: repository, params}}>
+        <Explorer>
+          <ActitivyBar tab={tab} onChange={setTab} />
+          <Tab initialMount isOpen={tab === 'auth'}>
+            <Auth
+              prefix='github.com'
+              onChangeToken={token => {
+                const dataSource = githubDataSource.create(params.owner, params.repo, token);
+                dataSource.getRepo().then(repo => setRepository({...repo, ...dataSource}));
+              }}
+            />
+          </Tab>
+          <Tab isOpen={tab === 'search'}>
+            <Search />
+          </Tab>
+          {repository &&
+            <Tab isOpen={tab === 'tree'}>
+              {params.pr && <PullRequest pr={params.pr} />}
+              {params.commit && <Commit commit={params.commit} />}
+              {!params.pr && !params.commit && <Head head={params.head || repository.defaultBranch} />}
+            </Tab>
+          }
+        </Explorer>
+      </Repository.Provider>
+    </Renderer.Provider>
   );
 }
 
