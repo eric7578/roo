@@ -15,8 +15,9 @@ import * as GithubRenderer from './components/GithubRenderer';
 import * as githubDataSource from './dataSource/github';
 
 const Tab = styled(Toggleable)`
-  width: 230px;
+  overflow: auto;
   padding: 18px;
+  width: 100%;
 `;
 
 const App = props => {
