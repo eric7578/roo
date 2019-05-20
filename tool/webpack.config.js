@@ -40,6 +40,23 @@ module.exports = {
         use: {
           loader: 'svg-react-loader'
         }
+      },
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: 'style-loader'
+          },
+          {
+            loader: 'css-loader'
+          }
+        ]
+      },
+      {
+        test: /\.woff2?$/,
+        use: {
+          loader: 'url-loader'
+        }
       }
     ]
   }

@@ -1,9 +1,11 @@
 import React, {createElement, createContext, useContext, useState, useMemo, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import icons from 'file-icons-js';
 import Toggleable from './Toggleable';
 import useDerivedState from './hooks/useDerivedState';
-import {Folder, FolderOpen, File} from './icons';
+import {Folder, FolderOpen, UnknownFile} from './icons';
+import 'file-icons-js/css/style.css';
 
 const ChildTree = styled.ul`
   list-style-type: none;
@@ -22,11 +24,26 @@ const NodePath = styled.div`
 
   svg {
     fill: #fff;
-    margin-right: 3px;
+    margin-right: 5px;
     min-width: 16px;
     width: 16px;
   }
 `;
+
+const KnownFile = styled.i`
+  font-style: normal;
+  margin-right: 5px;
+`;
+
+const FileNode = props => {
+  const iconClass = icons.getClassWithColor(props.path);
+  return (
+    <NodePath>
+      {iconClass ? <KnownFile className={iconClass} /> : <UnknownFile style={{width: 18, marginLeft: -3}} />}
+      {props.path}
+    </NodePath>
+  );
+}
 
 const TreeContext = createContext();
 
@@ -61,12 +78,7 @@ const TreeNode = props => {
     <>
       {isBlob && createElement(blobNodeComponent, {
         ...props,
-        children: (
-          <NodePath>
-            <File />
-            {props.path}
-          </NodePath>
-        )
+        children: <FileNode path={props.path} />
       })}
       {isTree &&
         <>
