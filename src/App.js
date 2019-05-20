@@ -21,6 +21,9 @@ const Tab = styled(Toggleable)`
 
 const App = props => {
   const [tab, setTab] = useState('tree');
+  const onChangeTab = nextTab => {
+    setTab(tab === nextTab ? 'tree' : nextTab);
+  }
 
   // Renderer Context
   const [renderer, setRenderer] = useState(() => {
@@ -47,7 +50,7 @@ const App = props => {
     <Renderer.Provider value={renderer}>
       <Repository.Provider value={{repo: repository, params}}>
         <Explorer>
-          <ActitivyBar tab={tab} onChange={setTab} />
+          <ActitivyBar tab={tab} onChange={onChangeTab} />
           <Tab initialMount isOpen={tab === 'auth'}>
             <Auth
               prefix='github.com'

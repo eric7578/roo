@@ -66,7 +66,6 @@ const ActivityBar = props => {
 }
 
 ActivityBar.propTypes = {
-  tab: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired
 };
 
