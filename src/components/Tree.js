@@ -13,14 +13,11 @@ const ChildTree = styled.ul`
   padding: 0;
 `;
 
-const ChildTreeNode = styled.li`
-  cursor: pointer;
-`;
-
 const NodePath = styled.div`
   align-items: center;
   display: flex;
   color: #fafafa;
+  cursor: pointer;
 
   svg {
     fill: #fff;
@@ -91,7 +88,7 @@ const TreeNode = props => {
               <ChildTree>
                 {props.tree.map(node => {
                   return (
-                    <ChildTreeNode key={node.sha || node.path}>
+                    <li key={node.sha || node.path}>
                       <TreeNode
                         {...node}
                         parentPath={nextLevelParentPath}
@@ -101,7 +98,7 @@ const TreeNode = props => {
                         defaultOpen={props.defaultOpen}
                         onExpand={props.onExpand}
                       />
-                    </ChildTreeNode>
+                    </li>
                   );
                 })}
               </ChildTree>
