@@ -1,7 +1,6 @@
-import React, {useRef, useState, useEffect, useLayoutEffect} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
-import document from 'global/document';
-import styled from 'styled-components';
+import styled, {createGlobalStyle} from 'styled-components';
 import useMouseDragging from './hooks/useMouseDragging';
 
 const Wrapper = styled.div`
@@ -36,6 +35,12 @@ const ToggleButton = styled.input.attrs({type: 'button'})`
   height: 50px;
 `;
 
+const BodyOffset = createGlobalStyle`
+  body {
+    margin-left: ${props => props.offset}px;
+  }
+`;
+
 const Explorer = props => {
   const [contentWidth, setContentWidth] = useState();
   const [isHidden, setIsHidden] = useState(false);
@@ -54,11 +59,6 @@ const Explorer = props => {
       setContentWidth(e.clientX);
     }
   }, resizeRef, 10);
-
-  useLayoutEffect(() => {
-    const offset = isHidden ? 0 : contentWidth;
-    document.body.style.marginLeft = `${offset}px`;
-  }, [isHidden, contentWidth]);
 
   return (
     <Wrapper>
@@ -79,6 +79,7 @@ const Explorer = props => {
           {props.children}
         </ContentWrapper>
       }
+      <BodyOffset offset={isHidden ? 0 : contentWidth} />
       <ResizeDetect ref={resizeRef} />
     </Wrapper>
   );
