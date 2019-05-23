@@ -9,8 +9,9 @@ import Search from './components/Search';
 import PullRequest from './components/PullRequest';
 import Toggleable from './components/Toggleable';
 import ActitivyBar from './components/ActivityBar';
-import {Renderer, Repository} from './context';
+import {Storage, Renderer, Repository} from './context';
 import useParams from './components/hooks/useParams';
+import useStorage from './components/hooks/useStorage';
 import * as GithubRenderer from './components/GithubRenderer';
 import * as githubDataSource from './dataSource/github';
 
@@ -25,6 +26,9 @@ const App = props => {
   const onChangeTab = nextTab => {
     setTab(tab === nextTab ? 'tree' : nextTab);
   }
+
+  // storage
+  const storage = useStorage();
 
   // Renderer Context
   const [renderer, setRenderer] = useState(() => {
@@ -48,32 +52,36 @@ const App = props => {
   const [repository, setRepository] = useState();
 
   return (
-    <Renderer.Provider value={renderer}>
-      <Repository.Provider value={{repo: repository, params}}>
-        <Explorer>
-          <ActitivyBar tab={tab} onChange={onChangeTab} />
-          <Tab initialMount isOpen={tab === 'auth'}>
-            <Auth
-              prefix='github.com'
-              onChangeToken={token => {
-                const dataSource = githubDataSource.create(params.owner, params.repo, token);
-                dataSource.getRepo().then(repo => setRepository({...repo, ...dataSource}));
-              }}
-            />
-          </Tab>
-          <Tab isOpen={tab === 'search'}>
-            <Search />
-          </Tab>
-          {repository &&
-            <Tab isOpen={tab === 'tree'}>
-              {params.pr && <PullRequest pr={params.pr} />}
-              {params.commit && <Commit commit={params.commit} />}
-              {!params.pr && !params.commit && <Head head={params.head || repository.defaultBranch} />}
-            </Tab>
+    <Storage.Provider value={storage}>
+      <Renderer.Provider value={renderer}>
+        <Repository.Provider value={{repo: repository, params}}>
+          {storage &&
+            <Explorer>
+              <ActitivyBar tab={tab} onChange={onChangeTab} />
+              <Tab initialMount isOpen={tab === 'auth'}>
+                <Auth
+                  prefix='github.com'
+                  onChangeToken={token => {
+                    const dataSource = githubDataSource.create(params.owner, params.repo, token);
+                    dataSource.getRepo().then(repo => setRepository({...repo, ...dataSource}));
+                  }}
+                />
+              </Tab>
+              <Tab isOpen={tab === 'search'}>
+                <Search />
+              </Tab>
+              {repository &&
+                <Tab isOpen={tab === 'tree'}>
+                  {params.pr && <PullRequest pr={params.pr} />}
+                  {params.commit && <Commit commit={params.commit} />}
+                  {!params.pr && !params.commit && <Head head={params.head || repository.defaultBranch} />}
+                </Tab>
+              }
+            </Explorer>
           }
-        </Explorer>
-      </Repository.Provider>
-    </Renderer.Provider>
+        </Repository.Provider>
+      </Renderer.Provider>
+    </Storage.Provider>
   );
 }
 

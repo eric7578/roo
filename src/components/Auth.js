@@ -1,5 +1,6 @@
-import React, {useReducer, useEffect} from 'react';
+import React, {useReducer, useEffect, useContext} from 'react';
 import PropTypes from 'prop-types';
+import {Storage} from '../context';
 
 const SET_DEFAULT = 'useAuth/SET_DEFAULT';
 const REMOVE = 'useAuth/REMOVE';
@@ -52,47 +53,35 @@ function modify(state, action) {
   };
 }
 
-function decompress(prefix) {
-  const compressed = localStorage.getItem(`${prefix}_auth`);
-  const value = [];
-  let selected = -1;
-
-  if (compressed) {
-    const auth = JSON.parse(compressed);
-    auth.forEach(({ n, t, d }, index) => {
-      if (d === 1) {
-        selected = index;
-      }
-      value.push({
-        name: n,
-        token: t
-      });
-    });
-  }
-
-  return {value, selected};
-}
-
-function compress(prefix, value, selected) {
-  const compressed = value.map(({name, token}, index) => {
-    const compressed = {
-      n: name,
-      t: token
+const Auth = props => {
+  const {token, setToken} = useContext(Storage);
+  const [{value, selected}, dispatch] = useReducer(reducer, token, token => {
+    const state = {
+      value: [],
+      selected: -1
     };
-    if (selected === index) {
-      compressed.d = 1;
-    }
-    return compressed;
+
+    token.forEach(({name, token, selected}, index) => {
+      if (selected) {
+        state.selected = index;
+      }
+      state.value.push({name, token});
+    });
+
+    return state;
   });
 
-  localStorage.setItem(`${prefix}_auth`, JSON.stringify(compressed));
-}
-
-const Auth = props => {
-  const [{value, selected}, dispatch] = useReducer(reducer, props.prefix, decompress);
-
   const onChangeToken = () => {
-    props.onChangeToken(value[selected] && value[selected].token);
+    const token = value.map(({name, token}, index) => {
+      const t = {name, token};
+      if (selected === index) {
+        t.selected = true;
+      }
+      return t;
+    });
+    setToken(token).then(() => {
+      props.onChangeToken(value[selected] && value[selected].token);
+    });
   }
 
   useEffect(onChangeToken, []);
@@ -101,7 +90,6 @@ const Auth = props => {
     <form
       onSubmit={e => {
         e.preventDefault();
-        compress(props.prefix, value, selected);
         onChangeToken();
       }}
     >
