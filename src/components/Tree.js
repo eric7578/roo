@@ -88,7 +88,7 @@ const TreeNode = props => {
               <ChildTree>
                 {props.tree.map(node => {
                   return (
-                    <li key={node.sha || node.path}>
+                    <li key={node.sha ? `${node.path}_${node.sha}` : node.path}>
                       <TreeNode
                         {...node}
                         parentPath={nextLevelParentPath}
