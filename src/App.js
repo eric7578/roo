@@ -57,7 +57,7 @@ const App = props => {
         <Repository.Provider value={{repo: repository, params}}>
           {storage &&
             <Explorer>
-              <ActitivyBar tab={tab} onChange={onChangeTab} />
+              <ActitivyBar selected={tab} onChange={onChangeTab} />
               <Tab initialMount isOpen={tab === 'auth'}>
                 <Auth
                   prefix='github.com'

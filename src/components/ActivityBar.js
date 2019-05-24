@@ -25,13 +25,14 @@ const IconList = styled.ul`
 
 const Icon = styled.li`
   align-items: center;
-  background-color: #242730;
+  background-color: ${props => props.selected ? '#484f63' : '#242730'};
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   height: 40px;
   justify-content: center;
   list-style-type: none;
+  transition: .5s;
   width: 40px;
 
   &:not(:last-child) {
@@ -39,7 +40,8 @@ const Icon = styled.li`
   }
 
   svg {
-    fill: #78909c;
+    fill: ${props => props.selected ? '#a7c6d6' : '#78909c'};
+    transition: .2s;
   }
 
   &:last-child {
@@ -51,13 +53,22 @@ const ActivityBar = props => {
   return (
     <Wrapper>
       <IconList>
-        <Icon onClick={e => props.onChange('search')}>
+        <Icon
+          selected={props.selected === 'search'}
+          onClick={e => props.onChange('search')}
+        >
           <Search />
         </Icon>
-        <Icon onClick={e => props.onChange('auth')}>
+        <Icon
+          selected={props.selected === 'auth'}
+          onClick={e => props.onChange('auth')}
+        >
           <Key />
         </Icon>
-        <Icon onClick={e => props.onChange('settings')}>
+        <Icon
+          selected={props.selected === 'settings'}
+          onClick={e => props.onChange('settings')}
+        >
           <Settings />
         </Icon>
       </IconList>
