@@ -18,6 +18,7 @@ const NodePath = styled.div`
   display: flex;
   color: #fafafa;
   cursor: pointer;
+  white-space: nowrap;
 
   svg {
     fill: #fff;
