@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import styled, {createGlobalStyle} from 'styled-components';
-import useMouseDragging from './hooks/useMouseDragging';
+import useMouseDragging from '../hooks/useMouseDragging';
 
 const Wrapper = styled.div`
   background-color: #21242a;

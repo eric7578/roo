@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import window from 'global/window';
 import Tree from './Tree';
 import {Renderer, Repository} from '../context';
-import useTree, {ROOT_SHA} from './hooks/useTree';
-import useDerivedState from './hooks/useDerivedState';
-import usePJAX from './hooks/usePJAX';
+import useTree, {ROOT_SHA} from '../hooks/useTree';
+import useDerivedState from '../hooks/useDerivedState';
+import usePJAX from '../hooks/usePJAX';
 
 const Head = props => {
   const {state, expandTree, resetTree} = useTree();

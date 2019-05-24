@@ -1,5 +1,5 @@
 import { testHook } from '../testUtil';
-import useTree, { mutatePathIn, collapseToTree, appendTreeNode, FILE, ROOT_SHA } from '../../src/components/hooks/useTree';
+import useTree, { mutatePathIn, collapseToTree, appendTreeNode, FILE, ROOT_SHA } from '../../src/hooks/useTree';
 
 describe('useTree', () => {
   describe('appendTreeNode', () => {

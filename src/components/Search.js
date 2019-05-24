@@ -2,8 +2,8 @@ import React, {useState, useContext} from 'react';
 import PropTypes from 'prop-types';
 import Tree from './Tree';
 import {Renderer, Repository} from '../context';
-import useTree from '../components/hooks/useTree';
-import useDelay from './hooks/useDelay';
+import useTree from '../hooks/useTree';
+import useDelay from '../hooks/useDelay';
 
 const Search = props => {
   const {HeadNode} = useContext(Renderer);

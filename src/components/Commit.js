@@ -2,7 +2,7 @@ import React, {useState, useEffect, useContext} from 'react';
 import PropTypes from 'prop-types';
 import {Renderer, Repository} from '../context';
 import Tree from './Tree';
-import useTree from '../components/hooks/useTree';
+import useTree from '../hooks/useTree';
 
 const Commit = props => {
   const {CommitNode} = useContext(Renderer);

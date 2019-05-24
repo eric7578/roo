@@ -10,8 +10,8 @@ import PullRequest from './components/PullRequest';
 import Toggleable from './components/Toggleable';
 import ActitivyBar from './components/ActivityBar';
 import {Storage, Renderer, Repository} from './context';
-import useParams from './components/hooks/useParams';
-import useStorage from './components/hooks/useStorage';
+import useParams from './hooks/useParams';
+import useStorage from './hooks/useStorage';
 import * as GithubRenderer from './components/GithubRenderer';
 import * as githubDataSource from './dataSource/github';
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import icons from 'file-icons-js';
 import Toggleable from './Toggleable';
-import useDerivedState from './hooks/useDerivedState';
+import useDerivedState from '../hooks/useDerivedState';
 import {Folder, FolderOpen, UnknownFile} from './icons';
 import 'file-icons-js/css/style.css';
 
