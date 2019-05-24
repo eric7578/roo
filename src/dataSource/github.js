@@ -30,9 +30,14 @@ export function create(owner, repo, token) {
       return github.get(`/repos/${owner}/${repo}/git/trees/${sha}`)
         .then(res => res.data.tree);
     },
-    searchPath(...keywrd) {
+    searchFile(...keywrd) {
       const keywrds = keywrd.join('+');
-      return github.get(`/search/code?q=${keywrds}+repo:${owner}/${repo}+in:path`)
+      return github.get(`/search/code?q=filename:${keywrds}+repo:${owner}/${repo}`)
+        .then(res => res.data.items);
+    },
+    searchCode(...keywrd) {
+      const keywrds = keywrd.join('+');
+      return github.get(`/search/code?q=${keywrds}+repo:${owner}/${repo}+in:file`)
         .then(res => res.data.items);
     },
     getPullRequest(pullNumber) {
