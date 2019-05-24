@@ -1,4 +1,5 @@
 import axios from 'axios';
+import window from 'global/window';
 
 export function create(owner, repo, token) {
   const github = axios.create({
@@ -49,6 +50,13 @@ export function create(owner, repo, token) {
           o.path = o.filename;
           return o;
         }));
+    },
+    pjax(path) {
+      const headers = {'X-PJAX': true};
+      if (token) {
+        headers.Authorization = `token ${token}`;
+      }
+      return axios.get(path, {headers}).then(resp => resp.data);
     }
   };
 }

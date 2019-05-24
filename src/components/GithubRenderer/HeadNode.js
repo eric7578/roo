@@ -1,5 +1,6 @@
 import React, {useContext} from 'react';
 import {Repository} from '../../context';
+import PJAXLink from '../PJAXLink';
 
 const HeadNode = props => {
   const {params, repo} = useContext(Repository);
@@ -13,12 +14,12 @@ const HeadNode = props => {
   ];
 
   return (
-    <a
+    <PJAXLink
       className={props.className}
       href={`https://github.com/${pathname.join('/')}`}
     >
       {props.children}
-    </a>
+    </PJAXLink>
   );
 }
 
