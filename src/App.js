@@ -9,9 +9,9 @@ import Search from './components/Search';
 import PullRequest from './components/PullRequest';
 import Toggleable from './components/Toggleable';
 import ActitivyBar from './components/ActivityBar';
-import {Storage, Renderer, Repository} from './context';
+import {Renderer, Repository} from './context';
 import useParams from './hooks/useParams';
-import useStorage from './hooks/useStorage';
+import WithStorage from './components/WithStorage';
 import * as GithubRenderer from './components/GithubRenderer';
 import * as githubDataSource from './dataSource/github';
 
@@ -26,9 +26,6 @@ const App = props => {
   const onChangeTab = nextTab => {
     setTab(tab === nextTab ? 'tree' : nextTab);
   }
-
-  // storage
-  const storage = useStorage();
 
   // Renderer Context
   const [renderer, setRenderer] = useState(() => {
@@ -52,36 +49,34 @@ const App = props => {
   const [repository, setRepository] = useState();
 
   return (
-    <Storage.Provider value={storage}>
+    <WithStorage>
       <Renderer.Provider value={renderer}>
         <Repository.Provider value={{repo: repository, params}}>
-          {storage &&
-            <Explorer>
-              <ActitivyBar selected={tab} onChange={onChangeTab} />
-              <Tab initialMount isOpen={tab === 'auth'}>
-                <Auth
-                  prefix='github.com'
-                  onChangeToken={token => {
-                    const dataSource = githubDataSource.create(params.owner, params.repo, token);
-                    dataSource.getRepo().then(repo => setRepository({...repo, ...dataSource}));
-                  }}
-                />
+          <Explorer>
+            <ActitivyBar selected={tab} onChange={onChangeTab} />
+            <Tab initialMount isOpen={tab === 'auth'}>
+              <Auth
+                prefix='github.com'
+                onChangeToken={token => {
+                  const dataSource = githubDataSource.create(params.owner, params.repo, token);
+                  dataSource.getRepo().then(repo => setRepository({...repo, ...dataSource}));
+                }}
+              />
+            </Tab>
+            <Tab isOpen={tab === 'search'}>
+              <Search />
+            </Tab>
+            {repository &&
+              <Tab isOpen={tab === 'tree'}>
+                {params.pr && <PullRequest pr={params.pr} />}
+                {params.commit && <Commit commit={params.commit} />}
+                {!params.pr && !params.commit && <Head head={params.head || repository.defaultBranch} />}
               </Tab>
-              <Tab isOpen={tab === 'search'}>
-                <Search />
-              </Tab>
-              {repository &&
-                <Tab isOpen={tab === 'tree'}>
-                  {params.pr && <PullRequest pr={params.pr} />}
-                  {params.commit && <Commit commit={params.commit} />}
-                  {!params.pr && !params.commit && <Head head={params.head || repository.defaultBranch} />}
-                </Tab>
-              }
-            </Explorer>
-          }
+            }
+          </Explorer>
         </Repository.Provider>
       </Renderer.Provider>
-    </Storage.Provider>
+    </WithStorage>
   );
 }
 
