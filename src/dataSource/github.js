@@ -1,5 +1,12 @@
 import axios from 'axios';
-import window from 'global/window';
+
+export const patterns = [
+  'https\\://github.com/:owner/:repo/pull/:pr(/*)',       // pr
+  'https\\://github.com/:owner/:repo/commit/:commit(/*)', // commit
+  'https\\://github.com/:owner/:repo/tree/:head(/*)',     // tree
+  'https\\://github.com/:owner/:repo/blob/:head(/*)',     // blob
+  'https\\://github.com/:owner/:repo(/*)'                 // other pages, simply show explorer
+];
 
 export function create(owner, repo, token) {
   const github = axios.create({
@@ -13,6 +20,7 @@ export function create(owner, repo, token) {
   }
 
   return {
+    pjaxContainer: 'main',
     getRepo() {
       const tasks = [
         github.get(`/repos/${owner}/${repo}`),
@@ -62,6 +70,39 @@ export function create(owner, repo, token) {
         headers.Authorization = `token ${token}`;
       }
       return axios.get(path, {headers}).then(resp => resp.data);
+    },
+    getHeadNodePath(node, dataSource) {
+      const path = [
+        'https://github.com',
+        dataSource.owner,
+        dataSource.repo,
+        'blob',
+        dataSource.head || dataSource.defaultBranch,
+        ...node.parentPath,
+        node.path
+      ];
+      return path.join('/');
+    },
+    getPrNodePath(node, dataSource) {
+      const path = [
+        'https://github.com',
+        dataSource.owner,
+        dataSource.repo,
+        'pull',
+        dataSource.pr,
+        'files'
+      ];
+      return `${path.join('/')}#diff-${node.index}`
+    },
+    getCommitNodePath(node, dataSource) {
+      const path = [
+        'https://github.com',
+        dataSource.owner,
+        dataSource.repo,
+        'commit',
+        dataSource.commit
+      ];
+      return `${path.join('/')}#diff-${node.index}`
     }
   };
 }

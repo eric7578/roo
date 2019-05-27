@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {Storage} from '../context';
+import useDerivedState from '../hooks/useDerivedState'
 
 const request = fn => new Promise((resolve, reject) => {
   const req = fn();
@@ -83,15 +84,18 @@ const WithStorage = props => {
       return db.current.set('preference', {name, setup});
     },
     setToken(token) {
-      const selectedToken = token.find(t => t.selected);
-      setStorage({
-        ...storage,
-        selectedToken,
-        token
-      });
+      setStorage({...storage, token});
       return db.current.reset('token', ...token);
     }
   });
+
+  useDerivedState(() => {
+    const selectedToken = storage.token.find(t => t.selected);
+    setStorage({
+      ...storage,
+      selectedToken: selectedToken ? selectedToken.token : null
+    });
+  }, storage.token);
 
   useEffect(() => {
     const initializeStorage = async () => {
@@ -104,12 +108,10 @@ const WithStorage = props => {
 
       const preference = await db.current.getAll('preference');
       const token = await db.current.getAll('token');
-      const selectedToken = token.find(t => t.selected);
 
       setStorage({
         ...storage,
         preference,
-        selectedToken,
         token
       });
       setIsReady(true);

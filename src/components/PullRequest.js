@@ -1,17 +1,17 @@
 import React, {useState, useEffect, useContext} from 'react';
 import PropTypes from 'prop-types';
-import {Renderer, Repository} from '../context';
+import {DataSource} from '../context';
 import Tree from './Tree';
+import PrNode from './nodes/PrNode';
 import useTree from '../hooks/useTree';
 
 const PullRequest = props => {
-  const {PrNode} = useContext(Renderer);
-  const {repo} = useContext(Repository);
+  const {getPullRequest} = useContext(DataSource);
   const [flattenTree, setFlattenTree] = useState([]);
   const {state} = useTree(flattenTree);
 
   useEffect(() => {
-    repo.getPullRequest(props.pr).then(setFlattenTree);
+    getPullRequest(props.pr).then(setFlattenTree);
   }, [props.pr]);
 
   return flattenTree.length > 0 && (

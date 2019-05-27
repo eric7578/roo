@@ -2,10 +2,11 @@ import React, {useState, useContext} from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Tree from './Tree';
-import {Renderer, Repository} from '../context';
+import {DataSource} from '../context';
 import {UnknownFile, Text} from './icons';
 import useTree from '../hooks/useTree';
 import useDelay from '../hooks/useDelay';
+import HeadNode from './nodes/HeadNode';
 
 const SearchWrapper = styled.div`
   align-items: center;
@@ -47,8 +48,7 @@ const SearchCondition = styled.label`
 `;
 
 const Search = props => {
-  const {HeadNode} = useContext(Renderer);
-  const {repo} = useContext(Repository);
+  const {searchFile, searchCode} = useContext(DataSource);
   const [flattenTree, setFlattenTree] = useState([]);
   const {state} = useTree(flattenTree);
   const [searchType, setSearchType] = useState('filename');
@@ -60,9 +60,9 @@ const Search = props => {
   const onSubmitSearch = searchText => {
     if (searchText) {
       if (searchType === 'filename') {
-        repo.searchFile(searchText).then(setFlattenTree);
+        searchFile(searchText).then(setFlattenTree);
       } else {
-        repo.searchCode(searchText).then(setFlattenTree);
+        searchCode(searchText).then(setFlattenTree);
       }
     }
   }

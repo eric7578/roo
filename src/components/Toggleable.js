@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 const Toggleable = props => {
@@ -13,13 +13,8 @@ const Toggleable = props => {
 }
 
 Toggleable.propTypes = {
-  initialMount: PropTypes.bool,
   isOpen: PropTypes.bool.isRequired,
   children: PropTypes.node
-};
-
-Toggleable.defaultProps = {
-  initialMount: false
 };
 
 export default Toggleable;

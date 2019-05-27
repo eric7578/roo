@@ -1,5 +1,4 @@
-import React, {useReducer, useEffect, useContext} from 'react';
-import PropTypes from 'prop-types';
+import React, {useReducer, useContext} from 'react';
 import {Storage} from '../context';
 
 const SET_DEFAULT = 'useAuth/SET_DEFAULT';
@@ -79,12 +78,8 @@ const Auth = props => {
       }
       return t;
     });
-    setToken(token).then(() => {
-      props.onChangeToken(value[selected] && value[selected].token);
-    });
+    setToken(token);
   }
-
-  useEffect(onChangeToken, []);
 
   return (
     <form
@@ -149,10 +144,5 @@ const Auth = props => {
     </form>
   );
 }
-
-Auth.propTypes = {
-  prefix: PropTypes.string.isRequired,
-  onChangeToken: PropTypes.func.isRequired
-};
 
 export default Auth;

@@ -1,10 +1,10 @@
-import {useState} from 'react';
+import {useRef} from 'react';
 
-export default function useDerivedState(callback, propValue) {
-  const [prevPropValue, setPrevPropValue] = useState();
+export default function useDerivedState(callback, value) {
+  const prevValue = useRef();
 
-  if (propValue !== prevPropValue) {
-    callback();
-    setPrevPropValue(propValue);
+  if (value !== prevValue.current) {
+    callback(prevValue.current);
+    prevValue.current = value;
   }
 }
