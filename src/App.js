@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import styled from 'styled-components';
 import Head from './components/Head';
 import Commit from './components/Commit';
@@ -11,6 +11,7 @@ import ActitivyBar from './components/ActivityBar';
 import {DataSource} from './context';
 import WithStorage from './components/WithStorage';
 import WithDataSource from './components/WithDataSource';
+import WithPjax from './components/WithPjax';
 
 const Tab = styled(Toggleable)`
   overflow: auto;
@@ -27,24 +28,26 @@ const App = props => {
   return (
     <WithStorage>
       <WithDataSource>
-        <Explorer>
-          <ActitivyBar selected={tab} onChange={onChangeTab} />
-          <Tab isOpen={tab === 'auth'}>
-            <Auth />
-          </Tab>
-          <Tab isOpen={tab === 'search'}>
-            <Search />
-          </Tab>
-          <DataSource.Consumer>
-            {({pr, commit, head, defaultBranch}) =>
-              <Tab isOpen={tab === 'tree'}>
-                {pr && <PullRequest pr={pr} />}
-                {commit && <Commit commit={commit} />}
-                {!pr && !commit && <Head head={head || defaultBranch} />}
-              </Tab>
-            }
-          </DataSource.Consumer>
-        </Explorer>
+        <WithPjax>
+          <Explorer>
+            <ActitivyBar selected={tab} onChange={onChangeTab} />
+            <Tab isOpen={tab === 'auth'}>
+              <Auth />
+            </Tab>
+            <Tab isOpen={tab === 'search'}>
+              <Search />
+            </Tab>
+            <DataSource.Consumer>
+              {({pr, commit, head, defaultBranch}) =>
+                <Tab isOpen={tab === 'tree'}>
+                  {pr && <PullRequest pr={pr} />}
+                  {commit && <Commit commit={commit} />}
+                  {!pr && !commit && <Head head={head || defaultBranch} />}
+                </Tab>
+              }
+            </DataSource.Consumer>
+          </Explorer>
+        </WithPjax>
       </WithDataSource>
     </WithStorage>
   );
