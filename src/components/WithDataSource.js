@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useRef} from 'react';
 import UrlPattern from 'url-pattern';
 import {DataSource, Storage} from '../context';
 import * as github from '../dataSource/github';
@@ -23,14 +23,22 @@ const parseParams = patterns => {
 const WithDataSource = props => {
   const {selectedToken} = useContext(Storage);
   const [dataSource, setDataSource] = useState();
+  const prevParams = useRef();
 
   // update params when location changed
   const onMessage = message => {
     if (message.type === 'roo/locationChanged') {
-      setDataSource(dataSource => ({
-        ...dataSource,
-        ...parseParams(github.patterns)
-      }));
+      setDataSource(dataSource => {
+        const params = parseParams(github.patterns);
+        for (const key in prevParams.current) {
+          delete dataSource[key];
+        }
+        prevParams.current = params;
+        return {
+          ...dataSource,
+          ...parseParams(github.patterns)
+        };
+      });
     }
   }
 
@@ -39,6 +47,7 @@ const WithDataSource = props => {
     const params = parseParams(github.patterns);
     const methods = github.create(params.owner, params.repo, selectedToken);
     methods.getRepo().then(repo => {
+      prevParams.current = params;
       setDataSource({
         ...params,
         filepath: params._,
