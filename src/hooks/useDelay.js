@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import window from 'global/window';
 
 export default function useDelay(cb, timeout) {
   const interval = useRef(0);

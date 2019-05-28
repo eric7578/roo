@@ -1,5 +1,4 @@
 import {useEffect, useRef} from 'react';
-import window from 'global/window';
 
 export default function useMouseDragging(callback, ref, bufferX = 0) {
   const prevClientX = useRef();
