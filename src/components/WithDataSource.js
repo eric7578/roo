@@ -14,7 +14,8 @@ const parseParams = patterns => {
     });
     const params = urlPattern.match(url);
     if (params) {
-      return params;
+      const {_: filepath, ...rest} = params;
+      return {...rest, filepath};
     }
   }
   return {};
@@ -50,7 +51,6 @@ const WithDataSource = props => {
       prevParams.current = params;
       setDataSource({
         ...params,
-        filepath: params._,
         ...repo,
         ...methods
       });
