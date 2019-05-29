@@ -1,11 +1,10 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Tree from './Tree';
 import {DataSource} from '../context';
 import {UnknownFile, Text} from './icons';
 import useTree from '../hooks/useTree';
-import useDelay from '../hooks/useDelay';
 import HeadNode from './nodes/HeadNode';
 
 const SearchWrapper = styled.div`
@@ -49,15 +48,12 @@ const SearchCondition = styled.label`
 
 const Search = props => {
   const {searchFile, searchCode} = useContext(DataSource);
-  const [flattenTree, setFlattenTree] = useState([]);
+  const [flattenTree, setFlattenTree] = useState();
+  const [searchText, setSearchText] = useState('');
   const {state} = useTree(flattenTree);
   const [searchType, setSearchType] = useState('filename');
 
-  const onChangeSearchType = e => {
-    setSearchType(e.target.value);
-  }
-
-  const onSubmitSearch = searchText => {
+  const onSubmitSearch = () => {
     if (searchText) {
       if (searchType === 'filename') {
         searchFile(searchText).then(setFlattenTree);
@@ -67,18 +63,29 @@ const Search = props => {
     }
   }
 
-  const delay = useDelay(onSubmitSearch, props.delay);
+  const onChangeSearchType = e => {
+    setSearchType(e.target.value);
+  }
+
+  useEffect(() => {
+    if (searchText) {
+      onSubmitSearch();
+    }
+  }, [searchType]);
+
+  const onChangeSearch = e => {
+    setSearchText(e.target.value.trim());
+  }
 
   return (
     <div>
       <SearchWrapper>
         <Input
+          value={searchText}
+          onChange={onChangeSearch}
           onKeyUp={e => {
-            const searchText = e.target.value.trim();
             if (e.keyCode === 13) {
-              onSubmitSearch(searchText);
-            } else {
-              delay(searchText);
+              onSubmitSearch();
             }
           }}
         />
@@ -101,11 +108,17 @@ const Search = props => {
           <Text />
         </SearchCondition>
       </SearchWrapper>
-      {flattenTree.length > 0 &&
-        <Tree
-          tree={state.tree}
-          blobNodeComponent={HeadNode}
-        />
+      {flattenTree && flattenTree.length === 0 &&
+        <p>No results found.</p>
+      }
+      {flattenTree && flattenTree.length > 0 &&
+        <>
+          <p>{`${flattenTree.length} results.`}</p>
+          <Tree
+            tree={state.tree}
+            blobNodeComponent={HeadNode}
+          />
+        </>
       }
     </div>
   );
