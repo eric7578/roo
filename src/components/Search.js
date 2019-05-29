@@ -1,11 +1,11 @@
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext, useEffect, useCallback} from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Tree from './Tree';
 import {DataSource} from '../context';
 import {UnknownFile, Text} from './icons';
 import useTree from '../hooks/useTree';
-import HeadNode from './nodes/HeadNode';
+import PjaxNode from './nodes/PjaxNode';
 
 const SearchWrapper = styled.div`
   align-items: center;
@@ -44,6 +44,11 @@ const SearchCondition = styled.label`
     transition: .2s;
     width: 18px;
   }
+`;
+
+const SearchInfo = styled.p`
+  color: #7d7d7e;
+  margin: 10px 0;
 `;
 
 const Search = props => {
@@ -109,14 +114,14 @@ const Search = props => {
         </SearchCondition>
       </SearchWrapper>
       {flattenTree && flattenTree.length === 0 &&
-        <p>No results found.</p>
+        <SearchInfo>No results found.</SearchInfo>
       }
       {flattenTree && flattenTree.length > 0 &&
         <>
-          <p>{`${flattenTree.length} results.`}</p>
+          <SearchInfo>{`${flattenTree.length} results.`}</SearchInfo>
           <Tree
             tree={state.tree}
-            blobNodeComponent={HeadNode}
+            blobNodeComponent={PjaxNode}
           />
         </>
       }

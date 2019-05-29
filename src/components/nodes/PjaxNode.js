@@ -1,7 +1,8 @@
 import React, {useContext, useCallback} from 'react';
+import PropTypes from 'prop-types';
 import {DataSource, Pjax} from '../../context';
 
-const HeadNode = props => {
+const PjaxNode = props => {
   const dataSource = useContext(DataSource);
   const {pjaxTo} = useContext(Pjax);
 
@@ -13,7 +14,11 @@ const HeadNode = props => {
     }
 
     e.preventDefault();
-    pjaxTo(href);
+    pjaxTo(href).then(() => {
+      if (props.onComplete) {
+        props.onComplete();
+      }
+    });
   }, [href]);
 
   return (
@@ -27,4 +32,8 @@ const HeadNode = props => {
   );
 }
 
-export default HeadNode;
+PjaxNode.propTypes = {
+  onComplete: PropTypes.func
+};
+
+export default PjaxNode;

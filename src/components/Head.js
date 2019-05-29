@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Tree from './Tree';
 import {DataSource} from '../context';
 import useTree, {ROOT_SHA} from '../hooks/useTree';
-import HeadNode from './nodes/HeadNode';
+import PjaxNode from './nodes/PjaxNode';
 
 const Head = props => {
   const {state, expandTree, resetTree} = useTree();
@@ -18,7 +18,7 @@ const Head = props => {
     <Tree
       tree={state.tree}
       defaultOpen={filepath && filepath.split('/')}
-      blobNodeComponent={HeadNode}
+      blobNodeComponent={PjaxNode}
       onExpand={sha => {
         getNodes(sha).then(tree => expandTree(sha, tree));
       }}

@@ -5,12 +5,13 @@ const WithPjax = props => {
   const {pjax, pjaxContainer} = useContext(DataSource);
 
   const pjaxTo = useCallback(to => {
-    pjax(to).then(html => {
+    return pjax(to).then(html => {
       const node = document.querySelector(pjaxContainer);
-      if (node) {
-        node.innerHTML = html;
-        window.history.pushState(null, '', to);
+      if (!node) {
+        throw new Error(`Cannot find pjacContainer with selector ${pjaxContainer}`);
       }
+      node.innerHTML = html;
+      window.history.pushState(null, '', to);
     });
   }, [pjax, pjaxContainer]);
 
