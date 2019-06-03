@@ -27,13 +27,13 @@ const App = props => {
 
   return (
     <WithStorage>
-      <WithDataSource>
-        <WithPjax>
-          <Explorer>
-            <ActitivyBar selected={tab} onChange={onChangeTab} />
-            <Tab isOpen={tab === 'auth'}>
-              <Auth />
-            </Tab>
+      <Explorer>
+        <ActitivyBar selected={tab} onChange={onChangeTab} />
+        <Tab isOpen={tab === 'auth'}>
+          <Auth />
+        </Tab>
+        <WithDataSource>
+          <WithPjax>
             <Tab isOpen={tab === 'search'}>
               <Search />
             </Tab>
@@ -46,9 +46,9 @@ const App = props => {
                 </Tab>
               }
             </DataSource.Consumer>
-          </Explorer>
-        </WithPjax>
-      </WithDataSource>
+          </WithPjax>
+        </WithDataSource>
+      </Explorer>
     </WithStorage>
   );
 }
