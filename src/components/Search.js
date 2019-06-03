@@ -8,6 +8,10 @@ import useTree from '../hooks/useTree';
 import PjaxNode from './nodes/PjaxNode';
 import {Input} from './Form';
 
+const Wrapper = styled.div`
+  padding: 18px;
+`;
+
 const SearchWrapper = styled.div`
   align-items: center;
   background-color: #3c3c3c;
@@ -75,7 +79,7 @@ const Search = props => {
   }
 
   return (
-    <div>
+    <Wrapper>
       <SearchWrapper>
         <Input
           value={searchText}
@@ -117,7 +121,7 @@ const Search = props => {
           />
         </>
       }
-    </div>
+    </Wrapper>
   );
 }
 

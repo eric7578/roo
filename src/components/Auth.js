@@ -1,6 +1,7 @@
-import React, {useReducer, useContext} from 'react';
+import React, {useState, useReducer, useContext} from 'react';
+import styled from 'styled-components';
 import {Storage} from '../context';
-import {Input, Token} from './Form';
+import {Input, Button} from './Form';
 
 const SET_DEFAULT = 'useAuth/SET_DEFAULT';
 const REMOVE = 'useAuth/REMOVE';
@@ -53,6 +54,78 @@ function modify(state, action) {
   };
 }
 
+const Wrapper = styled.div`
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+`;
+
+const DefaultLabel = styled.label`
+  color: ${props => props.checked ? '#fafafa' : 'inherit'};
+  flex: 1;
+  font-size: 10px;
+`;
+
+const DefaultCheck = styled.input.attrs({
+  type: 'checkbox'
+})`
+  margin-right: 5px;
+`;
+
+const AuthList = styled.ul`
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+`;
+
+const AuthItem = styled.li`
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+
+  &:not(:first-child) {
+    margin-top: 25px;
+  }
+
+  & *:not(:first-child) {
+    margin-top: 8px;
+  }
+`;
+
+const Token = props => {
+  const [type, setType] = useState('password');
+  const onFocus = e => {
+    setType('text');
+  }
+  const onBlur = e => {
+    setType('password');
+  }
+
+  // if type is password use a placeholder 'secretcat' as default value
+  return (
+    <Input
+      {...props}
+      value={type === 'password' && props.value ? 'secretcat' : props.value}
+      type={type}
+      onFocus={onFocus}
+      onBlur={onBlur}
+    />
+  );
+}
+
+const ButtonWrapper = styled.div`
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+  padding: 18px;
+  z-index: 1;
+
+  ${Button}:not(:first-child) {
+    margin-left: 5px;
+  }
+`;
+
 const Auth = props => {
   const {token, setToken} = useContext(Storage);
   const [{value, selected}, dispatch] = useReducer(reducer, token, token => {
@@ -89,57 +162,62 @@ const Auth = props => {
         onChangeToken();
       }}
     >
-      <ul>
-        {value.map(({name, token}, index) =>
-          <li key={index}>
-            <input
-              type='checkbox'
-              checked={index === selected}
-              onChange={e => dispatch({
-                type: SET_DEFAULT,
-                index,
-                selected: e.target.checked
-              })}
-            />
-            <Input
-              value={name}
-              onChange={e => dispatch({
-                type: MODIFY,
-                index,
-                name: e.target.value
-              })}
-            />
-            <Token
-              value={token}
-              onChange={e => dispatch({
-                type: MODIFY,
-                index,
-                token: e.target.value
-              })}
-            />
-            <input
-              type='button'
-              value='del'
-              onClick={e => dispatch({
-                type: REMOVE,
-                index
-              })}
-            />
-          </li>
-        )}
-      </ul>
-      <input
-        type='submit'
-        value='save'
-      />
-      <input
-        type='button'
-        value='Add account'
-        onClick={e => dispatch({
-          type: MODIFY,
-          index: value.length
-        })}
-      />
+      <Wrapper>
+        <AuthList>
+          {value.map(({name, token}, index) =>
+            <AuthItem key={index}>
+              <Input
+                placeholder='Insert name...'
+                value={name}
+                onChange={e => dispatch({
+                  type: MODIFY,
+                  index,
+                  name: e.target.value
+                })}
+              />
+              <Token
+                placeholder='Insert token...'
+                value={token}
+                onChange={e => dispatch({
+                  type: MODIFY,
+                  index,
+                  token: e.target.value
+                })}
+              />
+              <DefaultLabel checked={index === selected}>
+                <DefaultCheck
+                  type='checkbox'
+                  checked={index === selected}
+                  onChange={e => dispatch({
+                    type: SET_DEFAULT,
+                    index,
+                    selected: e.target.checked
+                  })}
+                />
+                Default
+              </DefaultLabel>
+              <Button
+                value='Remove'
+                onClick={e => dispatch({
+                  type: REMOVE,
+                  index
+                })}
+              />
+            </AuthItem>
+          )}
+        </AuthList>
+        <ButtonWrapper>
+          <Button type='submit' value='Save' />
+          <Button
+            type='submit'
+            value='Add account'
+            onClick={e => dispatch({
+              type: MODIFY,
+              index: value.length
+            })}
+          />
+        </ButtonWrapper>
+      </Wrapper>
     </form>
   );
 }

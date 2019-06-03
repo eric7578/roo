@@ -1,32 +1,28 @@
-import React, {useState} from 'react';
 import styled from 'styled-components';
 
 export const Input = styled.input.attrs({type: 'text'})`
-  background: none;
+  background-color: #3c3c3c;
   border: none;
   color: #fafafa;
   outline: none;
-  padding-left: 5px;
+  padding: 3px 8px;
   width: 100%;
 `;
 
-export const Token = props => {
-  const [type, setType] = useState('password');
-  const onFocus = e => {
-    setType('text');
-  }
-  const onBlur = e => {
-    setType('password');
-  }
+export const Button = styled.input.attrs({type: 'button'})`
+  background: none;
+  border: 1px solid #bebebe;
+  border-radius: 50px;
+  box-sizing: border-box;
+  color: #bebebe;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 20px;
+  outline: none;
+  transition: .2s;
 
-  // if type is password use a placeholder 'secretcat' as default value
-  return (
-    <Input
-      {...props}
-      value={type === 'password' && props.value ? 'secretcat' : props.value}
-      type={type}
-      onFocus={onFocus}
-      onBlur={onBlur}
-    />
-  );
-}
+  &:hover {
+    border-color: #fafafa;
+    color: #fafafa;
+  }
+`;

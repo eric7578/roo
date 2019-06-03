@@ -7,6 +7,10 @@ import useDerivedState from '../hooks/useDerivedState';
 import {Folder, FolderOpen, UnknownFile} from './icons';
 import 'file-icons-js/css/style.css';
 
+const Wrapper = styled.div`
+  padding: 18px;
+`;
+
 const ChildTree = styled.ul`
   list-style-type: none;
   margin: 0 0 0 15px;
@@ -130,13 +134,15 @@ const Tree = props => {
     <TreeContext.Provider
       value={ctx}
     >
-      {tree ? tree.map(node =>
-        <TreeNode
-          {...node}
-          key={node.sha || node.path}
-          depth={0}
-        />
-      ) : null}
+      <Wrapper>
+        {tree ? tree.map(node =>
+          <TreeNode
+            {...node}
+            key={node.sha || node.path}
+            depth={0}
+          />
+        ) : null}
+      </Wrapper>
     </TreeContext.Provider>
   );
 }

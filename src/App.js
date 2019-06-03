@@ -15,7 +15,6 @@ import WithPjax from './components/WithPjax';
 
 const Tab = styled(Toggleable)`
   overflow: auto;
-  padding: 18px;
   width: 100%;
 `;
 
