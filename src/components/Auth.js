@@ -1,5 +1,6 @@
 import React, {useReducer, useContext} from 'react';
 import {Storage} from '../context';
+import {Input, Token} from './Form';
 
 const SET_DEFAULT = 'useAuth/SET_DEFAULT';
 const REMOVE = 'useAuth/REMOVE';
@@ -100,8 +101,7 @@ const Auth = props => {
                 selected: e.target.checked
               })}
             />
-            <input
-              type='text'
+            <Input
               value={name}
               onChange={e => dispatch({
                 type: MODIFY,
@@ -109,8 +109,7 @@ const Auth = props => {
                 name: e.target.value
               })}
             />
-            <input
-              type='text'
+            <Token
               value={token}
               onChange={e => dispatch({
                 type: MODIFY,

@@ -6,6 +6,7 @@ import {DataSource} from '../context';
 import {UnknownFile, Text} from './icons';
 import useTree from '../hooks/useTree';
 import PjaxNode from './nodes/PjaxNode';
+import {Input} from './Form';
 
 const SearchWrapper = styled.div`
   align-items: center;
@@ -15,15 +16,6 @@ const SearchWrapper = styled.div`
   justify-content: center;
   margin-bottom: 10px;
   padding: 3px;
-`;
-
-const Input = styled.input.attrs({type: 'text'})`
-  background: none;
-  border: none;
-  color: #fafafa;
-  outline: none;
-  padding-left: 5px;
-  width: 100%;
 `;
 
 const SearchCondition = styled.label`
