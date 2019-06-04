@@ -82,6 +82,7 @@ const Search = props => {
     <Wrapper>
       <SearchWrapper>
         <Input
+          placeholder={searchType === 'filename' ? 'Search by path' : 'Search by content'}
           value={searchText}
           onChange={onChangeSearch}
           onKeyUp={e => {
