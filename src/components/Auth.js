@@ -30,7 +30,7 @@ function setDefault(state, action) {
 function remove(state, action) {
   return {
     ...state,
-    selected: action.index === action.selected ? -1 : action.selected,
+    selected: action.index === state.selected ? -1 : state.selected,
     value: [
       ...state.value.slice(0, action.index),
       ...state.value.slice(action.index + 1)
@@ -47,9 +47,7 @@ function modify(state, action) {
   };
   return {
     ...state,
-    selected: action.selected
-      ? auth.length
-      : action.selected,
+    selected: action.selected ? action.index : state.selected,
     value: nextAuth
   };
 }
@@ -213,7 +211,9 @@ const Auth = props => {
             value='Add account'
             onClick={e => dispatch({
               type: MODIFY,
-              index: value.length
+              index: value.length,
+              name: '',
+              token: ''
             })}
           />
         </ButtonWrapper>
