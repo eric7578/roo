@@ -1,7 +1,8 @@
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useRef, useState, useEffect, useContext} from 'react';
 import PropTypes from 'prop-types';
 import styled, {createGlobalStyle} from 'styled-components';
 import useMouseDragging from '../hooks/useMouseDragging';
+import {Storage} from '../context';
 
 const Wrapper = styled.div`
   background-color: #21242a;
@@ -42,23 +43,35 @@ const BodyOffset = createGlobalStyle`
 `;
 
 const Explorer = props => {
-  const [contentWidth, setContentWidth] = useState();
-  const [isHidden, setIsHidden] = useState(false);
+  const {preference, setPreference} = useContext(Storage);
+  const [contentWidth, setContentWidth] = useState(preference.contentWidth);
+  const [isHidden, setIsHidden] = useState(!preference.showExtension);
   const resizeRef = useRef();
   const contentRef = useRef();
 
   useEffect(() => {
-    const {width} = contentRef.current.getBoundingClientRect();
-    setContentWidth(width);
+    if (!isHidden) {
+      const {width} = contentRef.current.getBoundingClientRect();
+      setContentWidth(width);
+    }
   }, []);
 
-  useMouseDragging(e => {
-    const nextIsHidden = e.clientX < props.minResizeWidth;
-    setIsHidden(nextIsHidden);
-    if (!nextIsHidden) {
-      setContentWidth(e.clientX);
+  useMouseDragging({
+    onDrag(e) {
+      const nextIsHidden = e.clientX < props.minResizeWidth;
+      setIsHidden(nextIsHidden);
+      if (!nextIsHidden) {
+        setContentWidth(e.clientX);
+      }
+    },
+    onStop(e) {
+      setPreference('contentWidth', e.clientX);
     }
   }, resizeRef, 10);
+
+  useEffect(() => {
+    setPreference('showExtension', !isHidden)
+  }, [isHidden]);
 
   return (
     <Wrapper>

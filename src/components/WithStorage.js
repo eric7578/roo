@@ -106,7 +106,12 @@ const WithStorage = props => {
         const tokenObjectStore = db.createObjectStore('token', {autoIncrement: true});
       });
 
-      const preference = await db.current.getAll('preference');
+      const preferences = await db.current.getAll('preference');
+      const preference = preferences.reduce((preference, {name, setup}) => {
+        preference[name] = setup;
+        return preference;
+      }, {});
+
       const token = await db.current.getAll('token');
 
       setStorage({

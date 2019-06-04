@@ -1,6 +1,6 @@
 import {useEffect, useRef} from 'react';
 
-export default function useMouseDragging(callback, ref, bufferX = 0) {
+export default function useMouseDragging(callbacks, ref, bufferX = 0) {
   const prevClientX = useRef();
 
   const onMouseDown = e => {
@@ -12,6 +12,7 @@ export default function useMouseDragging(callback, ref, bufferX = 0) {
   const onMouseUp = e => {
     window.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('mouseup', onMouseUp);
+    callbacks.onStop(e);
   }
 
   const onMouseMove = e => {
@@ -19,7 +20,7 @@ export default function useMouseDragging(callback, ref, bufferX = 0) {
 
     const diffX = Math.abs(e.clientX - prevClientX.current);
     if (diffX > bufferX) {
-      callback(e);
+      callbacks.onDrag(e);
       prevClientX.current = e.clientX;
     }
   }
