@@ -2,7 +2,7 @@ import React, {useRef, useState, useEffect, useContext} from 'react';
 import PropTypes from 'prop-types';
 import styled, {createGlobalStyle} from 'styled-components';
 import useMouseDragging from '../hooks/useMouseDragging';
-import {Storage} from '../context';
+import {usePreferences} from '../hooks/useStorage';
 
 const Wrapper = styled.div`
   background-color: #21242a;
@@ -43,9 +43,9 @@ const BodyOffset = createGlobalStyle`
 `;
 
 const Explorer = props => {
-  const {preference, setPreference} = useContext(Storage);
-  const [contentWidth, setContentWidth] = useState(preference.contentWidth);
-  const [isHidden, setIsHidden] = useState(!preference.showExtension);
+  const {preferences, setPreferences} = usePreferences();
+  const [contentWidth, setContentWidth] = useState(preferences.contentWidth);
+  const [isHidden, setIsHidden] = useState(!preferences.showExtension);
   const resizeRef = useRef();
   const contentRef = useRef();
 
@@ -65,13 +65,9 @@ const Explorer = props => {
       }
     },
     onStop(e) {
-      setPreference('contentWidth', e.clientX);
+      setPreferences('contentWidth', e.clientX);
     }
   }, resizeRef, 10);
-
-  useEffect(() => {
-    setPreference('showExtension', !isHidden)
-  }, [isHidden]);
 
   return (
     <Wrapper>

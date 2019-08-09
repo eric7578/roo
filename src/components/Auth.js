@@ -1,71 +1,45 @@
-import React, {useState, useReducer, useContext, useEffect} from 'react';
+import React, {useState, useReducer, useCallback} from 'react';
 import styled from 'styled-components';
-import {Storage} from '../context';
 import {Input, Button} from './Form';
-
-const SET_DEFAULT = 'SET_DEFAULT';
-const REMOVE = 'REMOVE';
-const MODIFY = 'MODIFY';
-const SYNC = 'SYNC';
+import {useTokens} from '../hooks/useStorage';
 
 function reducer(state, action) {
   switch (action.type) {
-    case SET_DEFAULT:
-      return setDefault(state, action);
-    case REMOVE:
-      return remove(state, action);
-    case MODIFY:
-      return modify(state, action);
-    case SYNC:
-      return sync(action.token);
+    case 'append':
+      return [
+        ...state,
+        {
+          name: '',
+          value: '',
+          selected: false
+        }
+      ];
+
+    case 'remove':
+      return [
+        ...state.slice(0, action.index),
+        ...state.slice(action.index + 1)
+      ];
+
+    case 'modify':
+      if (action.field === 'selected' && action.value) {
+        return state.map((token, index) => {
+          return {
+            ...token,
+            [action.field]: index === action.index
+          };
+        });
+      }
+
+      state[action.index] = {
+        ...state[action.index],
+        [action.field]: action.value
+      };
+      return [...state];
+
     default:
       return state;
   }
-}
-
-function sync(token) {
-  return token.reduce((state, {name, token, selected}, index) => {
-    if (selected) {
-      state.selected = index;
-    }
-    state.value.push({name, token});
-    return state;
-  }, {
-    value: [],
-    selected: -1
-  });
-}
-
-function setDefault(state, action) {
-  return {
-    ...state,
-    selected: action.selected ? action.index : -1
-  };
-}
-
-function remove(state, action) {
-  return {
-    ...state,
-    selected: action.index === state.selected ? -1 : state.selected,
-    value: [
-      ...state.value.slice(0, action.index),
-      ...state.value.slice(action.index + 1)
-    ]
-  };
-}
-
-function modify(state, action) {
-  const {index, type, ...auth} = action;
-  const nextAuth = [...state.value];
-  nextAuth[index] = {
-    ...state.value[index],
-    ...auth
-  };
-  return {
-    ...state,
-    selected: action.selected ? action.index : state.selected,
-    value: nextAuth
-  };
 }
 
 const Wrapper = styled.div`
@@ -110,20 +84,20 @@ const AuthItem = styled.li`
 `;
 
 const Token = props => {
-  const [type, setType] = useState('password');
-  const onFocus = e => {
-    setType('text');
-  }
-  const onBlur = e => {
-    setType('password');
-  }
+  const [isFocus, setIsFocus] = useState(false);
+  const onFocus = useCallback(e => {
+    setIsFocus(true);
+  }, [setIsFocus]);
+  const onBlur = useCallback(e => {
+    setIsFocus(false);
+  }, [setIsFocus]);
 
   // if type is password use a placeholder 'secretcat' as default value
   return (
     <Input
       {...props}
-      value={type === 'password' && props.value ? 'secretcat' : props.value}
-      type={type}
+      placeholder={props.value ? 'Focus here to reveal' : props.placeholder}
+      value={isFocus ? props.value : ''}
       onFocus={onFocus}
       onBlur={onBlur}
     />
@@ -141,56 +115,51 @@ const ButtonWrapper = styled.div`
 `;
 
 const Auth = props => {
-  const {token, setToken} = useContext(Storage);
-  const [{value, selected}, dispatch] = useReducer(reducer, token, sync);
-  useEffect(() => {
-    dispatch({type: SYNC, token})
-  }, [token]);
+  const {tokens, setTokens} = useTokens();
+  const [state, dispatch] = useReducer(reducer, tokens);
 
   return (
     <form
+      autoComplete='off'
       onSubmit={e => {
         e.preventDefault();
-        const token = value.filter(({name, token}) => name && token).map(({name, token}, index) => {
-          const t = {name, token};
-          if (selected === index) {
-            t.selected = true;
-          }
-          return t;
-        });
-        setToken(token);
+        const tokens = state.filter(token => token.name && token.value);
+        setTokens(tokens);
       }}
     >
       <Wrapper>
         <AuthList>
-          {value.map(({name, token}, index) =>
+          {state.map((token, index) =>
             <AuthItem key={index}>
               <Input
                 placeholder='Insert name...'
-                value={name}
+                value={token.name}
                 onChange={e => dispatch({
-                  type: MODIFY,
+                  type: 'modify',
                   index,
-                  name: e.target.value
+                  field: 'name',
+                  value: e.target.value
                 })}
               />
               <Token
                 placeholder='Insert token...'
-                value={token}
+                value={token.value}
                 onChange={e => dispatch({
-                  type: MODIFY,
+                  type: 'modify',
                   index,
-                  token: e.target.value
+                  field: 'value',
+                  value: e.target.value
                 })}
               />
-              <DefaultLabel checked={index === selected}>
+              <DefaultLabel checked={token.selected}>
                 <DefaultCheck
                   type='checkbox'
-                  checked={index === selected}
+                  checked={token.selected}
                   onChange={e => dispatch({
-                    type: SET_DEFAULT,
+                    type: 'modify',
                     index,
-                    selected: e.target.checked
+                    field: 'selected',
+                    value: e.target.checked
                   })}
                 />
                 Default
@@ -198,7 +167,7 @@ const Auth = props => {
               <Button
                 value='Remove'
                 onClick={e => dispatch({
-                  type: REMOVE,
+                  type: 'remove',
                   index
                 })}
               />
@@ -211,12 +180,9 @@ const Auth = props => {
             value='Save'
           />
           <Button
-            value='Add account'
+            value='Add token'
             onClick={e => dispatch({
-              type: MODIFY,
-              index: value.length,
-              name: '',
-              token: ''
+              type: 'append'
             })}
           />
         </ButtonWrapper>
