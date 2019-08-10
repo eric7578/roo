@@ -5,7 +5,7 @@ import Tree from './Tree';
 import {DataSource} from '../context';
 import {UnknownFile, Text} from './icons';
 import useTree from '../hooks/useTree';
-import PjaxNode from './nodes/PjaxNode';
+import NavigateNode from './nodes/NavigateNode';
 import {Input} from './Form';
 
 const Wrapper = styled.div`
@@ -118,7 +118,7 @@ const Search = props => {
           <SearchInfo>{`${flattenTree.length} results.`}</SearchInfo>
           <Tree
             tree={state.tree}
-            blobNodeComponent={PjaxNode}
+            blobNodeComponent={NavigateNode}
           />
         </>
       }

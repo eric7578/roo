@@ -20,7 +20,6 @@ export function create(owner, repo, token) {
   }
 
   return {
-    pjaxContainer: 'main',
     getRepo() {
       const tasks = [
         github.get(`/repos/${owner}/${repo}`),
@@ -64,12 +63,16 @@ export function create(owner, repo, token) {
           return o;
         }));
     },
-    pjax(path) {
+    navigateTo(path) {
       const headers = {'X-PJAX': true};
       if (token) {
         headers.Authorization = `token ${token}`;
       }
-      return axios.get(path, {headers}).then(resp => resp.data);
+      return axios.get(path, {headers}).then(resp => {
+        const node = document.querySelector('main');
+        node.innerHTML = resp.data;
+        window.history.pushState(null, '', path);
+      });
     },
     getHeadNodePath(node, dataSource) {
       const path = [

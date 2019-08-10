@@ -11,7 +11,6 @@ import ActitivyBar from './ActivityBar';
 import {DataSource} from '../context';
 import WithStorage from './WithStorage';
 import WithDataSource from './WithDataSource';
-import WithPjax from './WithPjax';
 
 const Tab = styled(Toggleable)`
   overflow: auto;
@@ -32,20 +31,18 @@ const App = props => {
           <Auth />
         </Tab>
         <WithDataSource>
-          <WithPjax>
-            <Tab isOpen={tab === 'search'}>
-              <Search />
-            </Tab>
-            <DataSource.Consumer>
-              {({pr, commit, head, defaultBranch}) =>
-                <Tab isOpen={tab === 'tree'}>
-                  {pr && <PullRequest pr={pr} />}
-                  {commit && <Commit commit={commit} />}
-                  {!pr && !commit && <Head head={head || defaultBranch} />}
-                </Tab>
-              }
-            </DataSource.Consumer>
-          </WithPjax>
+          <Tab isOpen={tab === 'search'}>
+            <Search />
+          </Tab>
+          <DataSource.Consumer>
+            {({pr, commit, head, defaultBranch}) =>
+              <Tab isOpen={tab === 'tree'}>
+                {pr && <PullRequest pr={pr} />}
+                {commit && <Commit commit={commit} />}
+                {!pr && !commit && <Head head={head || defaultBranch} />}
+              </Tab>
+            }
+          </DataSource.Consumer>
         </WithDataSource>
       </Explorer>
     </WithStorage>

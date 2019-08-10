@@ -1,10 +1,9 @@
 import React, {useContext, useCallback} from 'react';
 import PropTypes from 'prop-types';
-import {DataSource, Pjax} from '../../context';
+import {DataSource} from '../../context';
 
-const PjaxNode = props => {
+const NavigateNode = props => {
   const dataSource = useContext(DataSource);
-  const {pjaxTo} = useContext(Pjax);
 
   const href = dataSource.getHeadNodePath(props, dataSource);
 
@@ -14,7 +13,7 @@ const PjaxNode = props => {
     }
 
     e.preventDefault();
-    pjaxTo(href).then(() => {
+    dataSource.navigateTo(href).then(() => {
       if (props.onComplete) {
         props.onComplete();
       }
@@ -32,8 +31,8 @@ const PjaxNode = props => {
   );
 }
 
-PjaxNode.propTypes = {
+NavigateNode.propTypes = {
   onComplete: PropTypes.func
 };
 
-export default PjaxNode;
+export default NavigateNode;
