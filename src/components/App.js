@@ -1,17 +1,17 @@
 import React, {useState, useContext} from 'react';
 import styled from 'styled-components';
-import Head from './components/Head';
-import Commit from './components/Commit';
-import Explorer from './components/Explorer';
-import Auth from './components/Auth';
-import Search from './components/Search';
-import PullRequest from './components/PullRequest';
-import Toggleable from './components/Toggleable';
-import ActitivyBar from './components/ActivityBar';
-import {DataSource} from './context';
-import WithStorage from './components/WithStorage';
-import WithDataSource from './components/WithDataSource';
-import WithPjax from './components/WithPjax';
+import Head from './Head';
+import Commit from './Commit';
+import Explorer from './Explorer';
+import Auth from './Auth';
+import Search from './Search';
+import PullRequest from './PullRequest';
+import Toggleable from './Toggleable';
+import ActitivyBar from './ActivityBar';
+import {DataSource} from '../context';
+import WithStorage from './WithStorage';
+import WithDataSource from './WithDataSource';
+import WithPjax from './WithPjax';
 
 const Tab = styled(Toggleable)`
   overflow: auto;
