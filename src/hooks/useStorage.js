@@ -1,19 +1,6 @@
-import {useContext} from 'react';
-import {Storage} from '../context';
+import { useContext } from 'react';
+import { Context } from '../components/Storage';
 
-export function useTokens() {
-  const {selectedToken, tokens, setTokens} = useContext(Storage);
-  return {
-    selectedToken,
-    tokens,
-    setTokens
-  };
-}
-
-export function usePreferences() {
-  const {preferences, setPreferences} = useContext(Storage);
-  return {
-    preferences,
-    setPreferences
-  };
+export default function useStorage() {
+  return useContext(Context);
 }

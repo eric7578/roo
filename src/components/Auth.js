@@ -1,7 +1,7 @@
-import React, {useState, useReducer, useCallback} from 'react';
+import React, { useState, useReducer, useCallback } from 'react';
 import styled from 'styled-components';
-import {Input, Button} from './Form';
-import {useTokens} from '../hooks/useStorage';
+import { Input, Button } from './Form';
+import useStorage from '../hooks/useStorage';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -42,14 +42,14 @@ function reducer(state, action) {
   }
 }
 
-const Wrapper = styled.div`
+const Form = styled.form`
   display: flex;
-  height: 100vh;
   flex-direction: column;
+  height: 100%;
 `;
 
 const DefaultLabel = styled.label`
-  color: ${props => props.checked ? '#fafafa' : 'inherit'};
+  color: ${props => (props.checked ? '#fafafa' : 'inherit')};
   flex: 1;
   font-size: 10px;
 `;
@@ -85,12 +85,18 @@ const AuthItem = styled.li`
 
 const Token = props => {
   const [isFocus, setIsFocus] = useState(false);
-  const onFocus = useCallback(e => {
-    setIsFocus(true);
-  }, [setIsFocus]);
-  const onBlur = useCallback(e => {
-    setIsFocus(false);
-  }, [setIsFocus]);
+  const onFocus = useCallback(
+    e => {
+      setIsFocus(true);
+    },
+    [setIsFocus]
+  );
+  const onBlur = useCallback(
+    e => {
+      setIsFocus(false);
+    },
+    [setIsFocus]
+  );
 
   // if type is password use a placeholder 'secretcat' as default value
   return (
@@ -102,7 +108,7 @@ const Token = props => {
       onBlur={onBlur}
     />
   );
-}
+};
 
 const ButtonWrapper = styled.div`
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
@@ -115,80 +121,85 @@ const ButtonWrapper = styled.div`
 `;
 
 const Auth = props => {
-  const {tokens, setTokens} = useTokens();
+  const { tokens, setTokens } = useStorage();
   const [state, dispatch] = useReducer(reducer, tokens);
 
   return (
-    <form
-      autoComplete='off'
+    <Form
+      autoComplete="off"
       onSubmit={e => {
         e.preventDefault();
         const tokens = state.filter(token => token.name && token.value);
         setTokens(tokens);
       }}
     >
-      <Wrapper>
-        <AuthList>
-          {state.map((token, index) =>
-            <AuthItem key={index}>
-              <Input
-                placeholder='Insert name...'
-                value={token.name}
-                onChange={e => dispatch({
+      <AuthList>
+        {state.map((token, index) => (
+          <AuthItem key={index}>
+            <Input
+              placeholder="Insert name..."
+              value={token.name}
+              onChange={e =>
+                dispatch({
                   type: 'modify',
                   index,
                   field: 'name',
                   value: e.target.value
-                })}
-              />
-              <Token
-                placeholder='Insert token...'
-                value={token.value}
-                onChange={e => dispatch({
+                })
+              }
+            />
+            <Token
+              placeholder="Insert token..."
+              value={token.value}
+              onChange={e =>
+                dispatch({
                   type: 'modify',
                   index,
                   field: 'value',
                   value: e.target.value
-                })}
-              />
-              <DefaultLabel checked={token.selected}>
-                <DefaultCheck
-                  type='checkbox'
-                  checked={token.selected}
-                  onChange={e => dispatch({
+                })
+              }
+            />
+            <DefaultLabel checked={token.selected}>
+              <DefaultCheck
+                type="checkbox"
+                checked={token.selected}
+                onChange={e =>
+                  dispatch({
                     type: 'modify',
                     index,
                     field: 'selected',
                     value: e.target.checked
-                  })}
-                />
-                Default
-              </DefaultLabel>
-              <Button
-                value='Remove'
-                onClick={e => dispatch({
+                  })
+                }
+              />
+              Default
+            </DefaultLabel>
+            <Button
+              value="Remove"
+              onClick={e =>
+                dispatch({
                   type: 'remove',
                   index
-                })}
-              />
-            </AuthItem>
-          )}
-        </AuthList>
-        <ButtonWrapper>
-          <Button
-            type='submit'
-            value='Save'
-          />
-          <Button
-            value='Add token'
-            onClick={e => dispatch({
+                })
+              }
+            />
+          </AuthItem>
+        ))}
+      </AuthList>
+      <ButtonWrapper>
+        <Button type="submit" value="Save" />
+        <Button
+          value="Add token"
+          onClick={e =>
+            dispatch({
               type: 'append'
-            })}
-          />
-        </ButtonWrapper>
-      </Wrapper>
-    </form>
+            })
+          }
+        />
+      </ButtonWrapper>
+    </Form>
   );
-}
+};
 
 export default Auth;
