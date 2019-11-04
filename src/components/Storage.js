@@ -1,43 +1,43 @@
-import React, { useState, createContext, useEffect } from 'react';
-import * as db from '../db';
+import React, { useState, createContext } from 'react';
+import useEffectOnce from '../hooks/useEffectOnce';
+import * as db from '../storage/db';
 
 export const Context = createContext();
 
 const Storage = props => {
-  const [sync, setSync] = useState(false);
-  const [preferences, setPreferences] = useState({});
-  const [tokens, setTokens] = useState([]);
+  const [storage, setStorage] = useState({
+    sync: false
+  });
 
-  useEffect(() => {
-    (async function() {
-      const preferences = await db.retrievePreferences();
-      const tokens = await db.retrieveTokens();
-      setPreferences(preferences);
-      setTokens(tokens);
-      setSync(true);
-    })();
-  }, []);
+  useEffectOnce(async () => {
+    await db.initialize();
+    const preferences = await db.retrievePreferences();
+    const credentials = await db.retrievCredentials();
+    setStorage({
+      sync: true,
+      credentials,
+      preferences
+    });
+  });
 
   return (
     <Context.Provider
       value={{
-        tokens,
-        async setTokens(nextTokens) {
-          await db.saveTokens(nextTokens);
-          updateTokens(nextTokens);
-        },
-        preferences,
-        async setPreferences(key, value) {
-          const nextPreferences = {
-            ...preferences,
-            [key]: value
-          };
-          await db.savePreferences(nextPreferences);
-          setPreferences(nextPreferences);
+        credentials: storage.credentials,
+        preferences: storage.preferences,
+        async sync(credentials, preferences) {
+          setStorage({ sync: false });
+          await db.saveCredentials(credentials);
+          await db.savePreferences(preferences);
+          setStorage({
+            sync: true,
+            credentials,
+            preferences
+          });
         }
       }}
     >
-      {sync && props.children}
+      {storage.sync && props.children}
     </Context.Provider>
   );
 };

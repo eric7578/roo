@@ -1,35 +1,48 @@
 import React, { useState, createContext, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import useBrowserURL from '../hooks/useBrowserURL';
 import useStorage from '../hooks/useStorage';
 
-const Context = createContext();
+export const Context = createContext();
 
-const DataSource = ({ provider, owner, repo, children }) => {
+const DataSource = props => {
   const [dataSource, setDataSource] = useState();
-  const { tokens } = useStorage();
+  const [createFunction, setCreateFunction] = useState();
+  const [token, setToken] = useState('');
+  const [loadedError, setLoadedError] = useState();
+  const { credentials } = useStorage();
+  const browserURL = useBrowserURL();
 
   useEffect(() => {
-    const initialize = async () => {
-      const { default: DataSource } = await import(`../dataSource/${provider}`);
-      const selected = tokens.find(token => token.selected);
-      const token = selected ? selected.value : null;
-      setDataSource(new DataSource({ owner, repo, token }));
-    };
-    initialize();
-  }, [provider, owner, repo, tokens]);
+    let assignedDataSource = browserURL.hostname;
+    const credential = credentials[browserURL.origin];
+    if (credential) {
+      assignedDataSource = credential.dataSource;
+      const selected = originTokens.settings.find(setting => setting.selected);
+      if (selected) {
+        setToken(selected.value);
+      }
+    }
+
+    import(`../dataSource/${assignedDataSource}.js`)
+      .then(({ default: createFunction }) => {
+        setCreateFunction(createFunction);
+        setDataSource(createFunction({ token }));
+      })
+      .catch(setLoadedError);
+  }, [browserURL, credentials]);
+
+  useEffect(() => {
+    if (createFunction) {
+      const instance = createFunction({ token });
+      setDataSource(instance);
+    }
+  }, [browserURL]);
 
   return (
     <Context.Provider value={dataSource}>
-      {dataSource && children}
+      {dataSource && props.children}
     </Context.Provider>
   );
-};
-
-DataSource.propTypes = {
-  provider: PropTypes.string.isRequired,
-  owner: PropTypes.string.isRequired,
-  repo: PropTypes.string.isRequired,
-  children: PropTypes.node
 };
 
 export default DataSource;
