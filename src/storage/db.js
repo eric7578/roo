@@ -87,9 +87,9 @@ export const saveCredentials = credentials => {
   const t = db.transaction('credentials', 'readwrite');
   const credentialsStore = t.objectStore('credentials');
   credentialsStore.clear();
-  credentials.forEach((token, index) => {
-    credentialsStore.add(token, index);
-  });
+  for (const hostname in credentials) {
+    credentialsStore.add(credentials[hostname], hostname);
+  }
   return idbTransaction(t);
 };
 

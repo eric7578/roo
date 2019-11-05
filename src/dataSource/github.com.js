@@ -1,49 +1,52 @@
 import axios from 'axios';
 
-const github = axios.create({
-  baseURL: 'https://api.github.com'
-});
-
-export default class Github {
-  constructor({ owner, repo, token }) {
-    this.prURLPattern = 'https\\://github.com/:owner/:repo/pull/:pr(/*)';
-    this.commitURLPattern =
-      'https://github.com/:owner/:repo/commit/:commit(/*)';
-    this.treeURLPattern = 'https://github.com/:owner/:repo/tree/:head(/*)';
-    this.blobURLPattern = 'https://github.com/:owner/:repo/blob/:head(/*)';
-    this.fallbackURLPattern = 'https://github.com/:owner/:repo(/*)';
-
-    this.owner = owner;
-    this.repo = repo;
-    if (token) {
-      github.defaults.headers.Authorization = `token ${token}`;
-    } else {
-      delete github.defaults.headers.Authorization;
-    }
-  }
-
-  searchFile(...keywrd) {
-    const keywrds = keywrd.join('+');
-    return github
-      .get(`/search/code?q=filename:${keywrds}+repo:${this.owner}/${this.repo}`)
-      .then(res => res.data.items);
-  }
-
-  searchCode(...keywrd) {
-    const keywrds = keywrd.join('+');
-    return github
-      .get(`/search/code?q=${keywrds}+repo:${this.owner}/${this.repo}+in:file`)
-      .then(res => res.data.items);
-  }
+export default function create() {
+  return {};
 }
 
-// export function create(owner, repo, token) {
+// const patterns = [
+//   // pr
+//   'https\\://github.com/:owner/:repo/pull/:pr(/*)',
+//   // commit
+//   'https://github.com/:owner/:repo/commit/:commit(/*)',
+//   // tree
+//   'https://github.com/:owner/:repo/tree/:head(/*)',
+//   // blob
+//   'https://github.com/:owner/:repo/blob/:head(/*)',
+//   // default
+//   'https://github.com/:owner/:repo(/*)'
+// ];
+
+// const regExp = pathToRegexp.compile('/user/:id');
+
+// export default function github(owner, repo, token) {
+//   const api = axios.create({
+//     baseURL: 'https://api.github.com'
+//   });
+
+//   if (token) {
+//     api.defaults.headers.Authorization = `token ${token}`;
+//   }
 
 //   return {
+//     getRouteProperties() {
+//       const patterns = [
+//         // pr
+//         'https\\://github.com/:owner/:repo/pull/:pr(/*)',
+//         // commit
+//         'https://github.com/:owner/:repo/commit/:commit(/*)',
+//         // tree
+//         'https://github.com/:owner/:repo/tree/:head(/*)',
+//         // blob
+//         'https://github.com/:owner/:repo/blob/:head(/*)',
+//         // default
+//         'https://github.com/:owner/:repo(/*)'
+//       ];
+//     },
 //     getRepo() {
 //       const tasks = [
-//         github.get(`/repos/${owner}/${repo}`),
-//         github.get(`/repos/${owner}/${repo}/branches`)
+//         api.get(`/repos/${owner}/${repo}`),
+//         api.get(`/repos/${owner}/${repo}/branches`)
 //       ];
 //       return Promise.all(tasks).then(([repoResp, branchesResp]) => {
 //         return {
@@ -53,12 +56,12 @@ export default class Github {
 //       });
 //     },
 //     getNodes(sha) {
-//       return github
+//       return api
 //         .get(`/repos/${owner}/${repo}/git/trees/${sha}`)
 //         .then(res => res.data.tree);
 //     },
 //     getPullRequest(pullNumber) {
-//       return github
+//       return api
 //         .get(`/repos/${owner}/${repo}/pulls/${pullNumber}/files`)
 //         .then(res =>
 //           res.data.map((o, index) => {
@@ -69,7 +72,7 @@ export default class Github {
 //         );
 //     },
 //     getCommit(sha) {
-//       return github.get(`/repos/${owner}/${repo}/commits/${sha}`).then(res =>
+//       return api.get(`/repos/${owner}/${repo}/commits/${sha}`).then(res =>
 //         res.data.files.map((o, index) => {
 //           o.index = index;
 //           o.path = o.filename;
@@ -120,6 +123,22 @@ export default class Github {
 //         dataSource.commit
 //       ];
 //       return `${path.join('/')}#diff-${node.index}`;
+//     },
+//     searchFile(...keywrd) {
+//       const keywrds = keywrd.join('+');
+//       return api
+//         .get(
+//           `/search/code?q=filename:${keywrds}+repo:${this.owner}/${this.repo}`
+//         )
+//         .then(res => res.data.items);
+//     },
+//     searchCode(...keywrd) {
+//       const keywrds = keywrd.join('+');
+//       return api
+//         .get(
+//           `/search/code?q=${keywrds}+repo:${this.owner}/${this.repo}+in:file`
+//         )
+//         .then(res => res.data.items);
 //     }
 //   };
 // }

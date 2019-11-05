@@ -25,14 +25,12 @@ const Storage = props => {
       value={{
         credentials: storage.credentials,
         preferences: storage.preferences,
-        async sync(credentials, preferences) {
-          setStorage({ sync: false });
+        async syncCredentials(credentials) {
           await db.saveCredentials(credentials);
-          await db.savePreferences(preferences);
           setStorage({
-            sync: true,
+            ...storage,
             credentials,
-            preferences
+            sync: true
           });
         }
       }}

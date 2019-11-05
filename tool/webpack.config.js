@@ -1,9 +1,14 @@
+const webpack = require('webpack');
 const path = require('path');
+const fs = require('fs');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ManifestTemplatePlugin = require('./ManifestTemplatePlugin');
 
 const SRC = path.resolve(__dirname, '../src');
 const BUILD = path.resolve(__dirname, '../build');
+const DATA_SOURCES = fs
+  .readdirSync(path.resolve(SRC, './dataSource'))
+  .map(file => path.parse(file).name);
 
 module.exports = {
   entry: path.join(SRC, 'main.js'),
@@ -12,6 +17,9 @@ module.exports = {
     filename: 'main.js'
   },
   plugins: [
+    new webpack.DefinePlugin({
+      DATA_SOURCES: JSON.stringify(DATA_SOURCES)
+    }),
     new CopyWebpackPlugin([
       {
         from: path.resolve(SRC, 'background'),
