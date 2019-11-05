@@ -1,10 +1,17 @@
-import React, {createElement, createContext, useContext, useState, useMemo, useEffect} from 'react';
+import React, {
+  createElement,
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useEffect
+} from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import icons from 'file-icons-js';
 import Toggleable from './Toggleable';
-import useDerivedState from '../hooks/useDerivedState';
-import {Folder, FolderOpen, UnknownFile} from './icons';
+import useMutateValue from '../hooks/useMutateValue';
+import { Folder, FolderOpen, UnknownFile } from './icons';
 import 'file-icons-js/css/style.css';
 
 const Wrapper = styled.div`
@@ -41,20 +48,26 @@ const FileNode = props => {
   const iconClass = icons.getClassWithColor(props.path);
   return (
     <NodePath>
-      {iconClass ? <KnownFile className={iconClass} /> : <UnknownFile style={{width: 18, marginLeft: -3}} />}
+      {iconClass ? (
+        <KnownFile className={iconClass} />
+      ) : (
+        <UnknownFile style={{ width: 18, marginLeft: -3 }} />
+      )}
       {props.path}
     </NodePath>
   );
-}
+};
 
 const TreeContext = createContext();
 
 const TreeNode = props => {
-  const {defaultOpen, blobNodeComponent, onExpand} = useContext(TreeContext);
+  const { defaultOpen, blobNodeComponent, onExpand } = useContext(TreeContext);
   const isTree = props.type === 'tree';
   const isBlob = props.type === 'blob';
   const [isOpen, setIsOpen] = useState(false);
-  const nextLevelParentPath = useMemo(() => ([...props.parentPath, props.path]), [props.path]);
+  const nextLevelParentPath = useMemo(() => [...props.parentPath, props.path], [
+    props.path
+  ]);
 
   useEffect(() => {
     if (isTree && defaultOpen && props.path === defaultOpen[props.depth]) {
@@ -62,7 +75,7 @@ const TreeNode = props => {
     }
   }, [defaultOpen]);
 
-  useDerivedState(() => {
+  useMutateValue(() => {
     // ignore when using cache
     if (isTree && props.tree && props.tree.length > 0) {
       return;
@@ -74,23 +87,26 @@ const TreeNode = props => {
 
   const onToggleOpen = e => {
     setIsOpen(!isOpen);
-  }
+  };
 
   return (
     <>
-      {isBlob && createElement(blobNodeComponent, {
-        ...props,
-        children: <FileNode path={props.path} />
-      })}
-      {isTree &&
+      {isBlob &&
+        createElement(blobNodeComponent, {
+          parentPath: props.parentPath,
+          path: props.path,
+          children: <FileNode path={props.path} />
+        })}
+      {isTree && (
         <>
           <NodePath onClick={isTree ? onToggleOpen : undefined}>
             {isOpen ? <FolderOpen /> : <Folder />}
             {props.path}
           </NodePath>
           <Toggleable isOpen={isOpen}>
-            {props.tree && props.tree.length > 0 &&
+            {props.tree && props.tree.length > 0 && (
               <ChildTree>
+                {console.log(props.tree)}
                 {props.tree.map(node => {
                   return (
                     <li key={node.sha ? `${node.path}_${node.sha}` : node.path}>
@@ -107,16 +123,16 @@ const TreeNode = props => {
                   );
                 })}
               </ChildTree>
-            }
+            )}
           </Toggleable>
         </>
-      }
+      )}
     </>
   );
-}
+};
 
 TreeNode.propTypes = {
-  sha: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol]).isRequired,
+  sha: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol]),
   type: PropTypes.oneOf(['blob', 'tree']).isRequired,
   path: PropTypes.string.isRequired,
   parentPath: PropTypes.arrayOf(PropTypes.string).isRequired,
@@ -129,28 +145,25 @@ TreeNode.defaultProps = {
 };
 
 const Tree = props => {
-  const {tree, ...ctx} = props;
+  const { tree, ...ctx } = props;
   return (
-    <TreeContext.Provider
-      value={ctx}
-    >
+    <TreeContext.Provider value={ctx}>
       <Wrapper>
-        {tree ? tree.map(node =>
-          <TreeNode
-            {...node}
-            key={node.sha || node.path}
-            depth={0}
-          />
-        ) : null}
+        {tree
+          ? tree.map(node => (
+              <TreeNode {...node} key={node.sha || node.path} depth={0} />
+            ))
+          : null}
       </Wrapper>
     </TreeContext.Provider>
   );
-}
+};
 
 Tree.propTypes = {
   tree: PropTypes.array,
   defaultOpen: PropTypes.arrayOf(PropTypes.string),
-  blobNodeComponent: PropTypes.oneOfType([PropTypes.func, PropTypes.string]).isRequired,
+  blobNodeComponent: PropTypes.oneOfType([PropTypes.func, PropTypes.string])
+    .isRequired,
   onExpand: PropTypes.func
 };
 

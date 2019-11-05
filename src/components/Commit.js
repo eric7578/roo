@@ -2,7 +2,7 @@ import React, {useState, useEffect, useContext} from 'react';
 import PropTypes from 'prop-types';
 import {DataSource} from '../context';
 import Tree from './Tree';
-import useTree from '../hooks/useTree';
+import useTree from '../hooks/useTree2';
 import CommitNode from './nodes/CommitNode';
 
 const Commit = props => {

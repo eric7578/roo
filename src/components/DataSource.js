@@ -1,35 +1,64 @@
-import React, { useState, createContext, useEffect } from 'react';
+import React, { useState, createContext, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import usePathnameUpdate from '../hooks/usePathnameUpdate';
 import useStorage from '../hooks/useStorage';
+import DataSourceTypes from '../types/DataSourceTypes';
 
-const Context = createContext();
+export const Context = createContext();
 
-const DataSource = ({ provider, owner, repo, children }) => {
+const DataSource = props => {
   const [dataSource, setDataSource] = useState();
-  const { tokens } = useStorage();
+  const [loadedError, setLoadedError] = useState();
+  const { credentials } = useStorage();
+
+  if (loadedError) {
+    console.error(loadedError);
+  }
+
+  const [token, dsPath] = useMemo(() => {
+    let token = '';
+    let dsPath = window.location.hostname;
+    const credential = credentials[window.location.hostname];
+    if (credential) {
+      dsPath = credential.dataSource;
+      const selected = credential.settings.find(setting => setting.selected);
+      if (selected) {
+        token = selected.value;
+      }
+    }
+    return [token, dsPath];
+  }, [credentials]);
 
   useEffect(() => {
-    const initialize = async () => {
-      const { default: DataSource } = await import(`../dataSource/${provider}`);
-      const selected = tokens.find(token => token.selected);
-      const token = selected ? selected.value : null;
-      setDataSource(new DataSource({ owner, repo, token }));
-    };
-    initialize();
-  }, [provider, owner, repo, tokens]);
+    if (!DataSourceTypes.includes(dsPath)) {
+      const err = new Error(`Cannot find matching data source: ${dsPath}`);
+      err.dataSource = dsPath;
+      onImportFailed(err);
+      return;
+    }
+    import(`../dataSource/${dsPath}`)
+      .then(dataSourceModule => dataSourceModule.init({ token }))
+      .then(setDataSource)
+      .catch(setLoadedError);
+  }, [token, dsPath]);
+
+  usePathnameUpdate(() => {
+    if (dataSource) {
+      const tabType = dataSource.onPathChanged();
+      onPathChanged(tabType);
+    }
+  });
 
   return (
     <Context.Provider value={dataSource}>
-      {dataSource && children}
+      {dataSource && props.children}
     </Context.Provider>
   );
 };
 
 DataSource.propTypes = {
-  provider: PropTypes.string.isRequired,
-  owner: PropTypes.string.isRequired,
-  repo: PropTypes.string.isRequired,
-  children: PropTypes.node
+  onPathChanged: PropTypes.func,
+  onImportFailed: PropTypes.func
 };
 
 export default DataSource;

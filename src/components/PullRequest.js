@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {DataSource} from '../context';
 import Tree from './Tree';
 import PrNode from './nodes/PrNode';
-import useTree from '../hooks/useTree';
+import useTree from '../hooks/useTree2';
 
 const PullRequest = props => {
   const {getPullRequest} = useContext(DataSource);

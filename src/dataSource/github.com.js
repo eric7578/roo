@@ -1,64 +1,113 @@
 import axios from 'axios';
+import * as TabTypes from '../types/TabTypes';
+import { createURLParser } from '../utils/urlParser';
 
-const github = axios.create({
-  baseURL: 'https://api.github.com'
-});
+const urlParser = createURLParser([
+  { tabType: TabTypes.PR, path: '/:owner/:repo/pull/:pr/:rest*' },
+  { tabType: TabTypes.COMMIT, path: '/:owner/:repo/commit/:commit/:rest*' },
+  { tabType: TabTypes.SOURCE, path: '/:owner/:repo/tree/:head/:rest*' },
+  { tabType: TabTypes.BLOB, path: '/:owner/:repo/blob/:head/:rest*' },
+  { tabType: TabTypes.SOURCE, path: '/:owner/:repo/:rest*' }
+]);
 
-export default class Github {
-  constructor({ owner, repo, token }) {
-    this.prURLPattern = 'https\\://github.com/:owner/:repo/pull/:pr(/*)';
-    this.commitURLPattern =
-      'https://github.com/:owner/:repo/commit/:commit(/*)';
-    this.treeURLPattern = 'https://github.com/:owner/:repo/tree/:head(/*)';
-    this.blobURLPattern = 'https://github.com/:owner/:repo/blob/:head(/*)';
-    this.fallbackURLPattern = 'https://github.com/:owner/:repo(/*)';
-
-    this.owner = owner;
-    this.repo = repo;
+class Github {
+  constructor(token) {
+    this.api = axios.create({
+      baseURL: 'https://api.github.com'
+    });
     if (token) {
-      github.defaults.headers.Authorization = `token ${token}`;
-    } else {
-      delete github.defaults.headers.Authorization;
+      this.api.defaults.headers.Authorization = `token ${token}`;
     }
+
+    this.token = token;
+    this.params = {};
   }
 
-  searchFile(...keywrd) {
-    const keywrds = keywrd.join('+');
-    return github
-      .get(`/search/code?q=filename:${keywrds}+repo:${this.owner}/${this.repo}`)
-      .then(res => res.data.items);
+  onPathChanged() {
+    const result = urlParser(window.location.pathname);
+    if (!result) {
+      return null;
+    }
+    this.params = result.params;
+    return result.tabType;
   }
 
-  searchCode(...keywrd) {
+  async getBranches() {
+    const { owner, repo } = this.params;
+    const [repoResp, branchesResp] = await Promise.all([
+      this.api.get(`/repos/${owner}/${repo}`),
+      this.api.get(`/repos/${owner}/${repo}/branches`)
+    ]);
+    this.defaultBranch = repoResp.data.default_branch;
+    this.branches = branchesResp.data;
+  }
+
+  async onSearchFile(...keywrd) {
+    const { owner, repo } = this.params;
     const keywrds = keywrd.join('+');
-    return github
-      .get(`/search/code?q=${keywrds}+repo:${this.owner}/${this.repo}+in:file`)
-      .then(res => res.data.items);
+    const res = await this.api.get(
+      `/search/code?q=filename:${keywrds}+repo:${owner}/${repo}`
+    );
+    return res.data.items;
+  }
+
+  async onSearchCode(...keywrd) {
+    const { owner, repo } = this.params;
+    const keywrds = keywrd.join('+');
+    const res = await this.api.get(
+      `/search/code?q=${keywrds}+repo:${owner}/${repo}+in:file`
+    );
+    return res.data.items;
+  }
+
+  async onGetNodes(sha) {
+    const { owner, repo, head } = this.params;
+    const ref = sha || head || this.defaultBranch;
+    const res = await this.api.get(`/repos/${owner}/${repo}/git/trees/${ref}`);
+    return res.data.tree;
+  }
+
+  async onNavigate(tabType, parentPath, path) {
+    const headers = { 'X-PJAX': true };
+    if (this.token) {
+      headers.Authorization = `token ${this.token}`;
+    }
+    const navigateUrl = this.makeUrl(tabType, [...parentPath, path]);
+    const res = await axios.get(navigateUrl, { headers });
+    const node = document.querySelector('main');
+    node.innerHTML = res.data;
+    window.history.pushState(null, '', navigateUrl);
+  }
+
+  makeUrl(tabType, paths) {
+    let path;
+    switch (tabType) {
+      case TabTypes.SEARCH:
+        path = [
+          'https://github.com',
+          this.params.owner,
+          this.params.repo,
+          'blob',
+          this.params.head || this.defaultBranch,
+          ...paths
+        ];
+    }
+
+    return path.join('/');
   }
 }
 
-// export function create(owner, repo, token) {
+export const init = async ({ token }) => {
+  const instance = new Github(token);
+  instance.onPathChanged();
+  await instance.getBranches();
+  return instance;
+};
 
+// export default function github(owner, repo, token) {
 //   return {
-//     getRepo() {
-//       const tasks = [
-//         github.get(`/repos/${owner}/${repo}`),
-//         github.get(`/repos/${owner}/${repo}/branches`)
-//       ];
-//       return Promise.all(tasks).then(([repoResp, branchesResp]) => {
-//         return {
-//           defaultBranch: repoResp.data.default_branch,
-//           branches: branchesResp.data
-//         };
-//       });
-//     },
-//     getNodes(sha) {
-//       return github
-//         .get(`/repos/${owner}/${repo}/git/trees/${sha}`)
-//         .then(res => res.data.tree);
-//     },
 //     getPullRequest(pullNumber) {
-//       return github
+//       return api
 //         .get(`/repos/${owner}/${repo}/pulls/${pullNumber}/files`)
 //         .then(res =>
 //           res.data.map((o, index) => {
@@ -69,24 +118,13 @@ export default class Github {
 //         );
 //     },
 //     getCommit(sha) {
-//       return github.get(`/repos/${owner}/${repo}/commits/${sha}`).then(res =>
+//       return api.get(`/repos/${owner}/${repo}/commits/${sha}`).then(res =>
 //         res.data.files.map((o, index) => {
 //           o.index = index;
 //           o.path = o.filename;
 //           return o;
 //         })
 //       );
-//     },
-//     navigateTo(path) {
-//       const headers = { 'X-PJAX': true };
-//       if (token) {
-//         headers.Authorization = `token ${token}`;
-//       }
-//       return axios.get(path, { headers }).then(resp => {
-//         const node = document.querySelector('main');
-//         node.innerHTML = resp.data;
-//         window.history.pushState(null, '', path);
-//       });
 //     },
 //     getHeadNodePath(node, dataSource) {
 //       const path = [
@@ -120,6 +158,6 @@ export default class Github {
 //         dataSource.commit
 //       ];
 //       return `${path.join('/')}#diff-${node.index}`;
-//     }
+//     },
 //   };
 // }

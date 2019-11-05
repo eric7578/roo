@@ -5,6 +5,7 @@ import Search from './round-search-24px.svg';
 import Key from './round-vpn_key-24px.svg';
 import Settings from './round-settings-24px.svg';
 import Text from './baseline-subject-24px.svg';
+import Documents from './file_copy-24px.svg';
 
 export {
   FolderOpen,
@@ -13,5 +14,6 @@ export {
   Search,
   Key,
   Settings,
-  Text
+  Text,
+  Documents
 };
