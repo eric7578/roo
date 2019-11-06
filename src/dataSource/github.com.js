@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-export default function create() {
+export default function create(opt) {
+  console.log('crearte.......', opt);
   return {};
 }
 
