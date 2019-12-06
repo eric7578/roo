@@ -7,8 +7,11 @@ const ManifestTemplatePlugin = require('./ManifestTemplatePlugin');
 const SRC = path.resolve(__dirname, '../src');
 const BUILD = path.resolve(__dirname, '../build');
 const DATA_SOURCES = fs
-  .readdirSync(path.resolve(SRC, './dataSource'))
-  .map(file => path.parse(file).name);
+  .readdirSync(path.resolve(SRC, './api'))
+  .filter(filepath => {
+    const dirpath = path.resolve(SRC, './api', filepath);
+    return fs.statSync(dirpath).isDirectory();
+  });
 
 module.exports = {
   entry: path.join(SRC, 'main.js'),
