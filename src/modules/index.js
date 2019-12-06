@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
+import vars from './vars';
 
-export default function(state) {
-  return state;
-}
+export default combineReducers({
+  vars
+});

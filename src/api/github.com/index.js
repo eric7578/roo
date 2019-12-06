@@ -10,6 +10,13 @@ export default function githubDataSource(token) {
   }
 
   return {
+    urlPatterns: [
+      '/:owner/:repo/pull/:pr/:rest*',
+      '/:owner/:repo/commit/:commit/:rest*',
+      '/:owner/:repo/tree/:head/:rest*',
+      '/:owner/:repo/blob/:head/:rest*',
+      '/:owner/:repo/:rest*'
+    ],
     async searchFile(params, ...keywrd) {
       const keywrds = keywrd.join('+');
       const res = await github.get(
