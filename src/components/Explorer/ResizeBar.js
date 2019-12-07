@@ -11,7 +11,7 @@ const ResizeDetect = styled.div`
   width: 3px;
 `;
 
-const ResizeBar = props => {
+const ResizeBar =  props => {
   const ref = useRef();
 
   useEffect(() => {

@@ -1,10 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled, { createGlobalStyle } from 'styled-components';
 import ResizeBar from './ResizeBar';
-import useStorage from '../../hooks/useStorage';
 import { Key, Search, Settings, Documents } from '../icons';
-import * as TabTypes from '../../types/TabTypes';
+import { tabTypes } from '../../enum';
 
 const Wrapper = styled.div`
   background-color: #21242a;
@@ -78,21 +77,53 @@ const SideWrapper = styled.div`
   flex: 1;
 `;
 
-const Explorer = ({ minResizeWidth, children, tab, onChangeTab }) => {
-  const { preferences } = useStorage();
-  const [contentWidth, setContentWidth] = useState(preferences.contentWidth);
-  const [showSideContent, setShowSideContent] = useState(true);
+const Tabs = ({ tab, toolBarOnly, tabs, onClick }) => {
+  return tabs.map((tabType, index) => (
+    <Icon
+      key={index}
+      selected={!toolBarOnly && tab === tabType.type}
+      onClick={e => onClick(tabType.type)}
+    >
+      {tabType.icon}
+    </Icon>
+  ));
+};
 
-  const onClickIcon = useCallback(
-    nextTab => {
-      if (nextTab === tab) {
-        setShowSideContent(!showSideContent);
-      } else {
-        setShowSideContent(true);
-        onChangeTab(nextTab);
-      }
+const Explorer = ({
+  toolBarOnly,
+  tab,
+  onChangeTab,
+  maxExplorerWidth,
+  explorerWidth,
+  onChangeExplorerWidth,
+  children
+}) => {
+  const tabs = useMemo(
+    () => [
+      { type: tabTypes.TREE, icon: <Documents /> },
+      { type: tabTypes.SEARCH, icon: <Search /> },
+      { type: tabTypes.CREDENTIALS, icon: <Key /> },
+      { type: tabTypes.SETTINGS, icon: <Settings /> }
+    ],
+    []
+  );
+  const [offsetWidth, setOffsetWidth] = useState(explorerWidth);
+  useEffect(() => {
+    setOffsetWidth(offsetWidth);
+  }, [explorerWidth]);
+
+  const onResizing = useCallback(
+    width => {
+      setOffsetWidth(Math.max(maxExplorerWidth, width));
     },
-    [showSideContent, tab, onChangeTab]
+    [maxExplorerWidth]
+  );
+
+  const onResizeEnd = useCallback(
+    width => {
+      onChangeExplorerWidth(Math.max(maxExplorerWidth, width));
+    },
+    [maxExplorerWidth, onChangeExplorerWidth]
   );
 
   return (
@@ -100,57 +131,37 @@ const Explorer = ({ minResizeWidth, children, tab, onChangeTab }) => {
       <Wrapper>
         <ActivityBar>
           <IconList>
-            <Icon
-              selected={showSideContent && tab === TabTypes.SOURCE}
-              onClick={e => onClickIcon(TabTypes.SOURCE)}
-            >
-              <Documents />
-            </Icon>
-            <Icon
-              selected={showSideContent && tab === TabTypes.SEARCH}
-              onClick={e => onClickIcon(TabTypes.SEARCH)}
-            >
-              <Search />
-            </Icon>
-            <Icon
-              selected={showSideContent && tab === TabTypes.CREDENTIALS}
-              onClick={e => onClickIcon(TabTypes.CREDENTIALS)}
-            >
-              <Key />
-            </Icon>
-            <Icon
-              selected={showSideContent && tab === TabTypes.SETTINGS}
-              onClick={e => onClickIcon(TabTypes.SETTINGS)}
-            >
-              <Settings />
-            </Icon>
+            <Tabs
+              tab={tab}
+              tabs={tabs}
+              toolBarOnly={toolBarOnly}
+              onClick={onChangeTab}
+            />
           </IconList>
         </ActivityBar>
-        {showSideContent && (
-          <ContentWrapper
-            style={{
-              width: contentWidth,
-              minWidth: minResizeWidth
-            }}
-          >
+        {!toolBarOnly && (
+          <ContentWrapper style={{ width: offsetWidth }}>
             <SideWrapper>{children}</SideWrapper>
-            <ResizeBar onDrag={setContentWidth} onStop={() => {}} />
+            <ResizeBar onDrag={onResizing} onStop={onResizeEnd} />
           </ContentWrapper>
         )}
       </Wrapper>
-      <BodyOffset offset={contentWidth} />
+      <BodyOffset offset={offsetWidth + 70} />
     </>
   );
 };
 
 Explorer.propTypes = {
-  minResizeWidth: PropTypes.number,
+  toolBarOnly: PropTypes.bool,
   tab: PropTypes.symbol,
-  onChangeTab: PropTypes.func
+  onChangeTab: PropTypes.func,
+  maxExplorerWidth: PropTypes.number,
+  explorerWidth: PropTypes.number,
+  onChangeExplorerWidth: PropTypes.func
 };
 
 Explorer.defaultProps = {
-  minResizeWidth: 300
+  maxExplorerWidth: 200
 };
 
 export default Explorer;

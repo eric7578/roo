@@ -9,6 +9,7 @@ import reducer from './modules';
 import * as idb from './api/idb';
 import { selectDataSource } from './api/dataSource';
 import * as vars from './modules/vars';
+import App from './components/App';
 
 async function init() {
   await idb.initialize();
@@ -30,21 +31,25 @@ async function init() {
   const store = createStore(
     reducer,
     {
-      preferences,
+      preferences: {
+        explorerWidth: 300,
+        toolBarOnly: false,
+        ...preferences
+      },
       credentials,
       vars: {
         params: paramsParser(window.location.pathname)
       }
     },
     applyMiddleware(
+      thunk.withExtraArgument({
+        idb: idbApi,
+        dataSource
+      }),
       createLogger({
         timestamp: false,
         collapsed: true,
         diff: true
-      }),
-      thunk.withExtraArgument({
-        idb: idbApi,
-        dataSource
       })
     )
   );
@@ -60,7 +65,12 @@ async function init() {
   const app = document.createElement('div');
   app.id = 'roo-app';
   document.body.appendChild(app);
-  ReactDOM.render(<Provider store={store}></Provider>, app);
+  ReactDOM.render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+    app
+  );
 }
 
 function createParamsParser(patterns) {
