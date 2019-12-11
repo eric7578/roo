@@ -17,10 +17,10 @@ function selectCredential(credentials) {
     return ['', hostname];
   }
 
-  const selected = config.settings.find(setting => setting.selected);
-  if (!selected) {
-    return ['', condif.dataSource];
+  const token = config.tokens.find(token => token.selected);
+  if (!token) {
+    return ['', config.dataSource];
   }
 
-  return [selected.value, config.dataSource];
+  return [token.value, config.dataSource];
 }
