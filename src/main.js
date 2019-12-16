@@ -53,7 +53,6 @@ async function init() {
       })
     )
   );
-  console.log(store.getState());
 
   chrome.runtime.onMessage.addListener(message => {
     if (message.type === 'roo/locationChanged') {

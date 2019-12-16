@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { treeNodeTypes } from '../../enum';
 
 export default function githubDataSource(token) {
   const github = axios.create({
@@ -13,8 +14,8 @@ export default function githubDataSource(token) {
     urlPatterns: [
       '/:owner/:repo/pull/:pr/:rest*',
       '/:owner/:repo/commit/:commit/:rest*',
-      '/:owner/:repo/tree/:head/:rest*',
-      '/:owner/:repo/blob/:head/:rest*',
+      '/:owner/:repo/tree/:ref/:rest*',
+      '/:owner/:repo/blob/:ref/:rest*',
       '/:owner/:repo/:rest*'
     ],
     async searchFile(params, ...keywrd) {
@@ -30,6 +31,29 @@ export default function githubDataSource(token) {
         `/search/code?q=${keywrds}+repo:${params.owner}/${params.repo}+in:file`
       );
       return res.data.items;
+    },
+    async getNodes(params, node) {
+      let ref = node ? node.sha : params.ref;
+      if (!ref) {
+        // get default branch as ref
+        const res = await github.get(`/repos/${params.owner}/${params.repo}`);
+        ref = res.data.default_branch;
+      }
+
+      const res = await github.get(
+        `/repos/${params.owner}/${params.repo}/git/trees/${ref}`
+      );
+      if (node) {
+        return res.data.tree.map(node => ({
+          ...node,
+          type: node.type === 'blob' ? treeNodeTypes.FILE : treeNodeTypes.TREE
+        }));
+      }
+      return res.data.tree.map(node => ({
+        ...node,
+        type: node.type === 'blob' ? treeNodeTypes.FILE : treeNodeTypes.TREE,
+        fullPath: node.path
+      }));
     }
   };
 }

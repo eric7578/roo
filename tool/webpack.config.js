@@ -21,7 +21,7 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      DATA_SOURCES: JSON.stringify(DATA_SOURCES)
+      'process.env.DATA_SOURCES': JSON.stringify(DATA_SOURCES)
     }),
     new CopyWebpackPlugin([
       {
