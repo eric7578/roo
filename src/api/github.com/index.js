@@ -14,8 +14,8 @@ export default function githubDataSource(token) {
     urlPatterns: [
       '/:owner/:repo/pull/:pr/:rest*',
       '/:owner/:repo/commit/:commit/:rest*',
-      '/:owner/:repo/tree/:ref/:rest*',
-      '/:owner/:repo/blob/:ref/:rest*',
+      '/:owner/:repo/tree/:ref/:fullPath*',
+      '/:owner/:repo/blob/:ref/:fullPath*',
       '/:owner/:repo/:rest*'
     ],
     async searchFile(params, ...keywrd) {

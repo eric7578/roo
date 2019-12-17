@@ -42,3 +42,27 @@ function sortNodes(n1, n2) {
     return 1;
   }
 }
+
+export function nextInDepthNodeSelectorCreator() {
+  return createSelector(
+    state => state.vars.params.fullPath,
+    state => state.tree,
+    (fullPath, tree) => {
+      if (!fullPath) {
+        return null;
+      }
+      const fullPathSegs = fullPath.split('/');
+      for (const pathSegIndex in fullPathSegs) {
+        const pathSeg = fullPathSegs.slice(0, pathSegIndex + 1).join('/');
+        const parentNode = tree.get(pathSeg);
+        if (
+          parentNode &&
+          parentNode.type === treeNodeTypes.TREE &&
+          !parentNode.tree
+        ) {
+          return parentNode;
+        }
+      }
+    }
+  );
+}
