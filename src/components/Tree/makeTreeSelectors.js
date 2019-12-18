@@ -43,7 +43,7 @@ function sortNodes(n1, n2) {
   }
 }
 
-export function nextInDepthNodeSelectorCreator() {
+export function nextPrefetchNodeSelectorCreator() {
   return createSelector(
     state => state.vars.params.fullPath,
     state => state.tree,
@@ -52,8 +52,8 @@ export function nextInDepthNodeSelectorCreator() {
         return null;
       }
       const fullPathSegs = fullPath.split('/');
-      for (const pathSegIndex in fullPathSegs) {
-        const pathSeg = fullPathSegs.slice(0, pathSegIndex + 1).join('/');
+      for (let segIndex = 0; segIndex < fullPathSegs.length; segIndex++) {
+        const pathSeg = fullPathSegs.slice(0, segIndex + 1).join('/');
         const parentNode = tree.get(pathSeg);
         if (
           parentNode &&

@@ -9,17 +9,17 @@ import {
 import TreeNode from './TreeNode';
 import {
   rootNodesSelctorCreator,
-  nextInDepthNodeSelectorCreator
+  nextPrefetchNodeSelectorCreator
 } from './makeTreeSelectors';
 
 const SourceTree = props => {
   const rootNodesSelector = useCallback(rootNodesSelctorCreator(), []);
-  const nextInDepthNodeSelector = useCallback(
-    nextInDepthNodeSelectorCreator(),
+  const nextPrefetchNodeSelector = useCallback(
+    nextPrefetchNodeSelectorCreator(),
     []
   );
   const rootNodes = useSelector(rootNodesSelector);
-  const nextInDepthNode = useSelector(nextInDepthNodeSelector);
+  const nextPrefetchNode = useSelector(nextPrefetchNodeSelector);
   const dispatch = useDispatch();
 
   const onClickNode = useCallback(node => {
@@ -31,11 +31,11 @@ const SourceTree = props => {
   });
 
   useEffect(() => {
-    if (nextInDepthNode) {
-      dispatch(toggleNode(nextInDepthNode.fullPath, true));
-      dispatch(getSourceTreeNodes(nextInDepthNode));
+    if (nextPrefetchNode) {
+      dispatch(toggleNode(nextPrefetchNode.fullPath, true));
+      dispatch(getSourceTreeNodes(nextPrefetchNode));
     }
-  }, [nextInDepthNode]);
+  }, [nextPrefetchNode]);
 
   return rootNodes.map(node => (
     <TreeNode node={node} key={node.fullPath} onClick={onClickNode} />
