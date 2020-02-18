@@ -1,8 +1,26 @@
-import { treeNodeTypes } from '../enum';
+import { treeNodeTypes, treeTypes } from '../enum';
 
 const TOGGLE = 'tree/TOGGLE';
+const LOAD_TREE = 'tree/LOAD_TREE';
 const APPEND = 'tree/APPEND';
 const COMPRESS = 'tree/COMPRESS';
+const OPEN_FULLPATH = 'tree/OPEN_FULLPATH';
+
+export function toggleNode(treeType, fullPath) {
+  return {
+    type: TOGGLE,
+    treeType,
+    fullPath
+  };
+}
+
+export function navigateNode(treeType, fullPath) {
+  return (dispatch, getState, { dataSource }) => {
+    const state = getState();
+    const node = state.tree.get(treeType).get(fullPath);
+    dataSource.navigateNode(state.vars.params, node);
+  };
+}
 
 export function sourceTreeNodeAction(node) {
   return async dispatch => {
@@ -19,24 +37,27 @@ export function sourceTreeNodeAction(node) {
   };
 }
 
-export function getSourceTreeNodes(parentNode) {
+export function getSourceTreeNodes() {
   return async (dispatch, getState, { dataSource }) => {
     const state = getState();
-    if (parentNode) {
-      const nodes = await dataSource.getNodes(state.vars.params, parentNode);
-      dispatch(appendNodes(nodes, parentNode));
-    } else {
-      const nodes = await dataSource.getNodes(state.vars.params);
-      dispatch(appendNodes(nodes));
-    }
-  };
-}
 
-export function toggleNode(fullPath, isOpen) {
-  return {
-    type: TOGGLE,
-    fullPath,
-    isOpen
+    // load source tree
+    const tree = state.tree.get(treeTypes.TREE);
+    if (tree.size === 0) {
+      const nodes = await dataSource.getSourceTreeNodes(state.vars.params);
+      dispatch({
+        type: LOAD_TREE,
+        treeType: treeTypes.TREE,
+        nodes
+      });
+    }
+
+    // open default path
+    dispatch({
+      type: OPEN_FULLPATH,
+      treeType: treeTypes.TREE,
+      fullPath: state.vars.params.fullPath
+    });
   };
 }
 
@@ -48,14 +69,20 @@ export function appendNodes(nodes, parentNode) {
   };
 }
 
-export function compressTree() {
-  return {
-    type: COMPRESS
-  };
-}
-
-export default function reducer(state = new Map(), action) {
+export default function reducer(
+  state = new Map([
+    [treeTypes.TREE, new Map()],
+    [treeTypes.SEARCH, new Map()]
+  ]),
+  action
+) {
   switch (action.type) {
+    case LOAD_TREE:
+      let tree = createTree(action.nodes);
+      if (action.compress) {
+        tree = compressTree(tree);
+      }
+      return new Map(state).set(action.treeType, tree);
     case TOGGLE:
       return toggle(state, action);
     case APPEND:
@@ -70,24 +97,65 @@ export default function reducer(state = new Map(), action) {
           `need to provide either parent node's fullPath or the node's fullPath when insert nodes`
         );
       }, state);
-    case COMPRESS:
-      return compress(state);
+    case OPEN_FULLPATH:
+      return openFullPath(state, action);
     default:
       return state;
   }
 }
 
-function toggle(state, action) {
-  const node = state.get(action.fullPath);
+function createTree(nodes) {
+  return nodes.reduce((tree, node) => {
+    const pathSegs = node.fullPath.split('/').filter(path => path !== '');
+    pathSegs.forEach((path, index) => {
+      const fullPath = pathSegs.slice(0, index + 1).join('/');
+      const isRoot = path === fullPath;
+      const parent = pathSegs.slice(0, index).join('/');
 
-  if (!node) {
-    return state;
-  }
+      // create node if not exist
+      if (!tree.has(fullPath)) {
+        // new node
+        tree.set(fullPath, {
+          ...node,
+          isRoot,
+          fullPath,
+          path,
+          isOpen: false,
+          parent,
+          tree: new Set()
+        });
+      }
 
-  return new Map(state).set(action.fullPath, {
-    ...node,
-    isOpen: action.isOpen !== undefined ? action.isOpen : !node.isOpen
+      if (!isRoot) {
+        const parentNode = tree.get(parent);
+        parentNode.tree.add(fullPath);
+      }
+    });
+    return tree;
+  }, new Map());
+}
+
+function compressTree(tree) {
+  Array.from(tree.entries()).forEach(([fullPath, node]) => {
+    if (node.tree && node.tree.size === 1) {
+      node.tree.forEach(childFullPath => {
+        const childNode = tree.get(childFullPath);
+        childNode.path = `${fullPath}/${childNode.path}`;
+      });
+      tree.delete(fullPath);
+    }
   });
+  return tree;
+}
+
+function toggle(state, action) {
+  const tree = state.get(action.treeType);
+  const node = tree.get(action.fullPath);
+  const nextTree = new Map(tree).set(action.fullPath, {
+    ...node,
+    isOpen: !node.isOpen
+  });
+  return new Map(state).set(action.treeType, nextTree);
 }
 
 function append(state, fullPath, node) {
@@ -138,27 +206,18 @@ function appendTo(state, parentNode, nodes) {
   });
 }
 
-function compress(state) {
-  const compressedAbsPaths = new Set();
-  return Array.from(state.entries()).reduce((newState, [absPath, node]) => {
-    if (node.type === treeNodeTypes.FILE || node.tree.size > 1) {
-      return newState.set(absPath, node);
-    } else if (node.tree.size === 0 || compressedAbsPaths.has(absPath)) {
-      return newState;
-    }
+function openFullPath(state, action) {
+  const nextTree = new Map(state.get(action.treeType));
+  let node = nextTree.get(action.fullPath);
 
-    while (node.type === treeNodeTypes.TREE && node.tree.size === 1) {
-      const subNodeAbsPath = node.tree.values().next().value;
-      const subNode = state.get(subNodeAbsPath);
-      if (subNode.type === treeNodeTypes.FILE) {
-        break;
-      }
-      compressedAbsPaths.add(subNodeAbsPath);
-      absPath = `${absPath}/${subNode.path}`;
-      node.path = `${node.path}/${subNode.path}`;
-      node.tree = subNode.tree;
-    }
+  do {
+    nextTree.set(node.fullPath, {
+      ...node,
+      isOpen: true
+    });
 
-    return newState.set(absPath, node);
-  }, new Map());
+    node = nextTree.get(node.parent);
+  } while (node);
+
+  return new Map(state).set(action.treeType, nextTree);
 }

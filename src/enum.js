@@ -11,3 +11,8 @@ export const treeNodeTypes = {
   TREE: Symbol('TREE'),
   FILE: Symbol('FILE')
 };
+
+export const treeTypes = {
+  TREE: Symbol('TREE'),
+  SEARCH: Symbol('SEARCH')
+};

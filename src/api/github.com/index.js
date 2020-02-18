@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { treeNodeTypes } from '../../enum';
 
 export default function githubDataSource(token) {
   const github = axios.create({
@@ -9,6 +8,16 @@ export default function githubDataSource(token) {
   if (token) {
     github.defaults.headers.Authorization = `token ${token}`;
   }
+
+  let repo;
+
+  const loadRepo = async params => {
+    if (!repo) {
+      const res = await github.get(`/repos/${params.owner}/${params.repo}`);
+      repo = res.data;
+    }
+    return repo;
+  };
 
   return {
     urlPatterns: [
@@ -32,28 +41,41 @@ export default function githubDataSource(token) {
       );
       return res.data.items;
     },
-    async getNodes(params, node) {
-      let ref = node ? node.sha : params.ref;
-      if (!ref) {
-        // get default branch as ref
-        const res = await github.get(`/repos/${params.owner}/${params.repo}`);
-        ref = res.data.default_branch;
-      }
-
-      const res = await github.get(
-        `/repos/${params.owner}/${params.repo}/git/trees/${ref}`
-      );
-      if (node) {
-        return res.data.tree.map(node => ({
-          ...node,
-          type: node.type === 'blob' ? treeNodeTypes.FILE : treeNodeTypes.TREE
-        }));
+    async getSourceTreeNodes(params) {
+      let res;
+      if (params.ref) {
+        res = await github.get(
+          `/repos/${params.owner}/${params.repo}/git/trees/${params.ref}?recursive=1`
+        );
+      } else {
+        const { default_branch } = await loadRepo(params);
+        res = await github.get(
+          `/repos/${params.owner}/${params.repo}/git/trees/${default_branch}?recursive=1`
+        );
       }
       return res.data.tree.map(node => ({
         ...node,
-        type: node.type === 'blob' ? treeNodeTypes.FILE : treeNodeTypes.TREE,
+        isDir: node.type === 'tree',
+        isFile: node.type === 'blob',
         fullPath: node.path
       }));
+    },
+    async navigateNode(params, node) {
+      let ref = params.ref;
+      if (!ref) {
+        const repo = await loadRepo(params);
+        ref = repo.default_branch;
+      }
+      const navigateUrl = `https://github.com/${params.owner}/${params.repo}/blob/${ref}/${node.fullPath}`;
+      const res = await axios.get(navigateUrl, {
+        headers: {
+          'X-PJAX': true,
+          Authorization: `token ${token}`
+        }
+      });
+      const $main = document.querySelector('main');
+      $main.innerHTML = res.data;
+      window.history.pushState(null, '', navigateUrl);
     }
   };
 }

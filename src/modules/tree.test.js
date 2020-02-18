@@ -3,7 +3,8 @@ import { treeNodeTypes } from '../enum';
 
 const append = tree.__get__('append');
 const appendTo = tree.__get__('appendTo');
-const compress = tree.__get__('compress');
+const createTree = tree.__get__('createTree');
+const compressTree = tree.__get__('compressTree');
 
 test('append should parse full path into an array of nodes', () => {
   const state = append(new Map(), 'src/tree.js', { type: treeNodeTypes.FILE });
@@ -67,52 +68,60 @@ test('appendTo should add node into corresponding node by relative path', () => 
   );
 });
 
-test('compress should compress tree node with only one child', () => {
-  const state = compress(
-    new Map([
-      [
-        'src',
-        {
-          path: 'src',
-          type: treeNodeTypes.TREE,
-          tree: new Set(['src/components'])
-        }
-      ],
-      [
-        'src/components',
-        {
-          path: 'components',
-          type: treeNodeTypes.TREE,
-          tree: new Set(['src/components/useTree.js'])
-        }
-      ],
-      [
-        'src/components/useTree.js',
-        {
-          path: 'useTree.js',
-          type: treeNodeTypes.FILE
-        }
-      ]
-    ])
-  );
+test('createTree should create tree with array of nodes', () => {
+  const nodes = [
+    { fullPath: 'src/modules/tree.js' },
+    { fullPath: 'src/modules/tree.test.js' }
+  ];
+  const tree = createTree(nodes);
 
-  expect(state).toEqual(
-    new Map([
-      [
-        'src/components',
-        {
-          path: 'src/components',
-          type: treeNodeTypes.TREE,
-          tree: new Set(['src/components/useTree.js'])
-        }
-      ],
-      [
-        'src/components/useTree.js',
-        {
-          path: 'useTree.js',
-          type: treeNodeTypes.FILE
-        }
-      ]
-    ])
-  );
+  expect(tree.get('src')).toMatchObject({
+    path: 'src',
+    fullPath: 'src',
+    tree: new Set(['src/modules'])
+  });
+  expect(tree.get('src/modules')).toMatchObject({
+    path: 'modules',
+    fullPath: 'src/modules',
+    tree: new Set(['src/modules/tree.js', 'src/modules/tree.test.js'])
+  });
+  expect(tree.get('src/modules/tree.js')).toMatchObject({
+    fullPath: 'src/modules/tree.js',
+    path: 'tree.js'
+  });
+  expect(tree.get('src/modules/tree.test.js')).toMatchObject({
+    fullPath: 'src/modules/tree.test.js',
+    path: 'tree.test.js'
+  });
+});
+
+test('compressTree should compress tree nodes with only one child', () => {
+  const tree = new Map();
+  tree
+    .set('src', {
+      path: 'src',
+      tree: new Set(['src/modules'])
+    })
+    .set('src/modules', {
+      path: 'modules',
+      tree: new Set(['src/modules/tree.js', 'src/modules/tree.test.js'])
+    })
+    .set('src/modules/tree.js', {
+      path: 'tree.js'
+    })
+    .set('src/modules/tree.test.js', {
+      path: 'tree.test.js'
+    });
+  compressTree(tree);
+
+  expect(tree.get('src/modules')).toMatchObject({
+    path: 'src/modules',
+    tree: new Set(['src/modules/tree.js', 'src/modules/tree.test.js'])
+  });
+  expect(tree.get('src/modules/tree.js')).toMatchObject({
+    path: 'tree.js'
+  });
+  expect(tree.get('src/modules/tree.test.js')).toMatchObject({
+    path: 'tree.test.js'
+  });
 });

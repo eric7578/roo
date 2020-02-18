@@ -1,59 +1,34 @@
-import makeTreeSelectors, {
-  nextPrefetchNodeSelectorCreator
-} from './makeTreeSelectors';
-import { treeNodeTypes } from '../../enum';
+import makeTreeSelectors, { createRootNodesSelctor } from './makeTreeSelectors';
+import { treeNodeTypes, treeTypes } from '../../enum';
 
 const sortNodes = makeTreeSelectors.__get__('sortNodes');
 
 test('sortNodes should sort nodes in the order of Tree, File and alphabet', () => {
   const nodes = [
-    { path: '.gitignore', type: treeNodeTypes.FILE },
-    { path: 'test', type: treeNodeTypes.TREE },
-    { path: 'App.js', type: treeNodeTypes.FILE },
-    { path: 'src', type: treeNodeTypes.TREE }
+    { path: '.gitignore', isFile: true },
+    { path: 'test', isFile: false },
+    { path: 'App.js', isFile: true },
+    { path: 'src', isFile: false }
   ];
   expect(nodes.sort(sortNodes)).toEqual([
-    { path: 'src', type: treeNodeTypes.TREE },
-    { path: 'test', type: treeNodeTypes.TREE },
-    { path: '.gitignore', type: treeNodeTypes.FILE },
-    { path: 'App.js', type: treeNodeTypes.FILE }
+    { path: 'src', isFile: false },
+    { path: 'test', isFile: false },
+    { path: '.gitignore', isFile: true },
+    { path: 'App.js', isFile: true }
   ]);
 });
 
-test('nextPrefetchNodeSelectorCreator should select next node in fullPath, if the node is lack of tree', () => {
-  const selector = nextPrefetchNodeSelectorCreator();
-  const nextPrefetchNode = selector({
-    vars: {
-      params: { fullPath: 'src/components/Tree.js' }
-    },
-    tree: new Map([
-      [
-        'src',
-        {
-          type: treeNodeTypes.TREE,
-          path: 'src',
-          tree: new Set(['src/components'])
-        }
-      ],
-      [
-        'src/components',
-        {
-          type: treeNodeTypes.TREE,
-          path: 'components'
-        }
-      ],
-      [
-        'src/components/Tree.js',
-        {
-          type: treeNodeTypes.FILE,
-          path: 'Tree.js'
-        }
-      ]
-    ])
-  });
+test('createRootNodesSelctor should create selecor to select root nodes', () => {
+  const selector = createRootNodesSelctor(treeTypes.TREE);
+  const tree = new Map([
+    ['src', { path: 'src' }],
+    ['tool', { path: 'tool' }],
+    ['src/components', { path: 'components' }]
+  ]);
+  const state = {
+    tree: new Map([[treeTypes.TREE, tree]])
+  };
 
-  expect(nextPrefetchNode).toEqual({
-    type: treeNodeTypes.TREE,
-    path: 'components'
-  });
+  const rootNodes = selector(state);
+  expect(rootNodes).toEqual([tree.get('src'), tree.get('tool')]);
 });
