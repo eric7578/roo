@@ -58,12 +58,12 @@ const CredentialSet = ({
         <Setting key={`${token.value}_${index}`}>
           <Input
             defaultValue={token.value}
-            onBlur={e => onChange('value', index, e.target.value)}
+            onBlur={e => onChange('value', e.target.value, index)}
           />
           <DefaultLabel checked={token.selected}>
             <DefaultCheck
               checked={token.selected}
-              onChange={e => onChange('selected', index, e.target.checked)}
+              onChange={e => onChange('selected', e.target.checked, index)}
             />
             Default
           </DefaultLabel>

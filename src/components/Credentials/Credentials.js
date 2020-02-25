@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button } from '../Form';
@@ -7,8 +7,9 @@ import {
   modifyCredential,
   saveCredential,
   addCredential,
-  removeCredential
-} from '../../modules/credentials';
+  removeCredential,
+  setDefaultCredential
+} from '../../modules/dataSource';
 
 const Form = styled.form`
   display: flex;
@@ -28,22 +29,8 @@ const ButtonWrapper = styled.div`
 
 const Credentials = props => {
   const dispatch = useDispatch();
-  const credentials = useSelector(state =>
-    Object.entries(state.credentials).reduce(
-      (credentials, [hostname, credential]) => {
-        credential = {
-          ...credential,
-          hostname
-        };
-        if (hostname === window.location.hostname) {
-          credentials.unshift(credential);
-        } else {
-          credentials.push(credential);
-        }
-        return credentials;
-      },
-      []
-    )
+  const credential = useSelector(state =>
+    state.dataSource.credentials.get(window.location.hostname)
   );
 
   return (
@@ -53,24 +40,23 @@ const Credentials = props => {
         dispatch(saveCredential());
       }}
     >
-      {credentials.map(credential => (
-        <CredentialSet
-          {...credential}
-          key={credential.hostname}
-          onChange={(...args) =>
-            dispatch(modifyCredential(window.location.hostname, ...args))
+      <CredentialSet
+        {...credential}
+        onChange={(field, ...args) => {
+          if (field == 'selected') {
+            dispatch(setDefaultCredential(...args));
+          } else {
+            dispatch(modifyCredential(field, ...args));
           }
-          onRemove={index =>
-            dispatch(removeCredential(window.location.hostname, index))
-          }
-        />
-      ))}
+        }}
+        onRemove={index => dispatch(removeCredential(index))}
+      />
       <ButtonWrapper>
         <Button type="submit" value="Save" />
         <Button
           value="Add token"
           onClick={e => {
-            dispatch(addCredential(window.location.hostname));
+            dispatch(addCredential());
           }}
         />
       </ButtonWrapper>

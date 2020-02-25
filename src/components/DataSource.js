@@ -1,53 +1,36 @@
 import React, { useState, createContext, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import usePathnameUpdate from '../hooks/usePathnameUpdate';
-import useStorage from '../hooks/useStorage';
-import DataSourceTypes from '../types/DataSourceTypes';
+import { useDispatch, useSelector } from 'react-redux';
+import * as vars from '../modules/vars';
+import { dataSourceTypes } from '../enum';
 
-export const Context = createContext();
+const Context = createContext();
 
 const DataSource = props => {
-  const [dataSource, setDataSource] = useState();
-  const [loadedError, setLoadedError] = useState();
-  const { credentials } = useStorage();
-
-  if (loadedError) {
-    console.error(loadedError);
-  }
-
-  const [token, dsPath] = useMemo(() => {
-    let token = '';
-    let dsPath = window.location.hostname;
-    const credential = credentials[window.location.hostname];
-    if (credential) {
-      dsPath = credential.dataSource;
-      const selected = credential.settings.find(setting => setting.selected);
-      if (selected) {
-        token = selected.value;
-      }
+  const dispatch = useDispatch();
+  const activeToken = useSelector(state => state.credentials.activeToken);
+  const activeToken = useSelector(state => state.credentials.active);
+  const params = useSelector(state => state.vars.params);
+  const dataSource = useMemo(() => {
+    if (!dataSourceTypes.includes(dataSource)) {
+      const err = new Error(`Cannot find matching data source: ${dataSource}`);
+      throw err;
     }
-    return [token, dsPath];
-  }, [credentials]);
+    return require(`./${dataSource}`).default(token);
+  }, [activeToken, params]);
 
   useEffect(() => {
-    if (!DataSourceTypes.includes(dsPath)) {
-      const err = new Error(`Cannot find matching data source: ${dsPath}`);
-      err.dataSource = dsPath;
-      onImportFailed(err);
-      return;
-    }
-    import(`../dataSource/${dsPath}`)
-      .then(dataSourceModule => dataSourceModule.init({ token }))
-      .then(setDataSource)
-      .catch(setLoadedError);
-  }, [token, dsPath]);
-
-  usePathnameUpdate(() => {
-    if (dataSource) {
-      const tabType = dataSource.onPathChanged();
-      onPathChanged(tabType);
-    }
-  });
+    const onMessage = message => {
+      if (message.type === 'roo/locationChanged') {
+        const params = paramsParser(window.location.pathname);
+        dispatch(vars.updateParams(params));
+      }
+    };
+    chrome.runtime.onMessage.addListener(onMessage);
+    return () => {
+      chrome.runtime.onMessage.removeListener(onMessage);
+    };
+  }, [dispatch]);
 
   return (
     <Context.Provider value={dataSource}>

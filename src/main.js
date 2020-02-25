@@ -8,39 +8,27 @@ import { pathToRegexp } from 'path-to-regexp';
 import reducer from './modules';
 import * as idb from './api/idb';
 import { selectDataSource } from './api/dataSource';
-import * as vars from './modules/vars';
+import * as dataSource from './modules/dataSource';
+import * as preferences from './modules/preferences';
 import App from './components/App';
 
 async function init() {
   await idb.initialize();
-  const credentials = await idb.retrievCredentials();
-  const preferences = await idb.retrievePreferences();
 
-  let dataSource = await selectDataSource(credentials);
-  let paramsParser = createParamsParser(dataSource.urlPatterns);
+  // let dataSource = await credentials;
+  // let paramsParser = createParamsParser(dataSource.urlPatterns);
 
   const idbApi = {
     ...idb,
     async saveCredentials(credentials) {
       await idb.saveCredentials(credentials);
-      dataSource = await selectDataSource(credentials);
-      paramsParser = createParamsParser(dataSource.urlPatterns);
+      // dataSource = await selectDataSource(credentials);
+      // paramsParser = createParamsParser(dataSource.urlPatterns);
     }
   };
 
   const store = createStore(
     reducer,
-    {
-      preferences: {
-        explorerWidth: 300,
-        toolBarOnly: false,
-        ...preferences
-      },
-      credentials,
-      vars: {
-        params: paramsParser(window.location.pathname)
-      }
-    },
     applyMiddleware(
       thunk.withExtraArgument({
         idb: idbApi,
@@ -54,15 +42,10 @@ async function init() {
     )
   );
 
-  chrome.runtime.onMessage.addListener(message => {
-    if (message.type === 'roo/locationChanged') {
-      const params = paramsParser(window.location.pathname);
-      store.dispatch(vars.params(params));
-    }
-  });
+  await store.dispatch(dataSource.retrieveCredentials());
+  await store.dispatch(preferences.retrievePreferences());
 
   const app = document.createElement('div');
-  app.id = 'roo-app';
   document.body.appendChild(app);
   ReactDOM.render(
     <Provider store={store}>

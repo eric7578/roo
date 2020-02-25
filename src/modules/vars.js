@@ -1,18 +1,18 @@
-const PARAMS = 'vars/PARAMS';
+const UPDATE_PARAMS = 'vars/UPDATE_PARAMS';
 
-export function params(data) {
+export function updateParams(params) {
   return {
-    type: PARAMS,
-    data
+    type: UPDATE_PARAMS,
+    params
   };
 }
 
 export default function reducer(state = {}, action) {
   switch (action.type) {
-    case PARAMS:
+    case UPDATE_PARAMS:
       return {
         ...state,
-        params: action.data
+        params: action.params
       };
     default:
       return state;
