@@ -1,4 +1,4 @@
-import React, { useMemo, useState, createContext, useEffect } from 'react';
+import React, { useState, createContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { pathToRegexp } from 'path-to-regexp';
 
@@ -10,30 +10,7 @@ const getWindowURL = () => {
 
 const Router = ({ patterns, getURL, children }) => {
   const [currentURL, setCurrentURL] = useState(() => getURL());
-
-  const context = useMemo(() => {
-    for (const [match, pattern] of Object.entries(patterns)) {
-      const keys = [];
-      const regexp = pathToRegexp(pattern, keys);
-      const matched = regexp.exec(currentURL);
-
-      if (matched) {
-        const params = keys.reduce((params, key, idx) => {
-          params[key.name] = matched[idx + 1];
-          return params;
-        }, {});
-        return {
-          match: {
-            [match]: true
-          },
-          params
-        };
-      }
-    }
-    return {
-      match: false
-    };
-  }, [patterns, currentURL]);
+  const [routing, setRouting] = useState();
 
   useEffect(() => {
     const onMessage = message => {
@@ -47,8 +24,34 @@ const Router = ({ patterns, getURL, children }) => {
     };
   }, [getURL]);
 
+  useEffect(() => {
+    for (const [match, pattern] of Object.entries(patterns)) {
+      const keys = [];
+      const regexp = pathToRegexp(pattern, keys);
+      const matched = regexp.exec(currentURL);
+
+      if (matched) {
+        const params = keys.reduce((params, key, idx) => {
+          params[key.name] = matched[idx + 1];
+          return params;
+        }, {});
+        return setRouting({
+          match: {
+            [match]: true
+          },
+          params
+        });
+      }
+    }
+    return setRouting({
+      match: false
+    });
+  }, [patterns, currentURL]);
+
   return (
-    <RouterContext.Provider value={context}>{children}</RouterContext.Provider>
+    <RouterContext.Provider value={routing}>
+      {routing && children}
+    </RouterContext.Provider>
   );
 };
 

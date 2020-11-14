@@ -1,69 +1,52 @@
-import React, { useState, useContext } from 'react';
-import styled from 'styled-components';
-// import Head from './Head';
-// import Commit from './Commit';
+import React, { useEffect, useContext, useRef, useState } from 'react';
+import { RouterContext } from './Router';
 import Explorer from './Explorer';
-import Auth from './Auth';
-// import Search from './Search';
-// import PullRequest from './PullRequest';
-import Toggleable from './Toggleable';
-import DataSource from './DataSource';
-import PathMatch, { Match } from './PathMatch';
-import Storage from './Storage';
+import Idb from '../idb';
 
-const Tab = styled(Toggleable)`
-  overflow: auto;
-  width: 100%;
-`;
+export const AppContext = React.createContext();
 
-const App = props => {
-  const [tab, setTab] = useState('tree');
-  const onChangeTab = nextTab => {
-    setTab(tab === nextTab ? 'tree' : nextTab);
-  };
+const App = ({ backendClass }) => {
+  const { params } = useContext(RouterContext);
+  const refIdb = useRef(new Idb('roo'));
+  const [credential, setCredential] = useState();
+  const [preferences, setPreferences] = useState();
+  const [backend, setBackend] = useState();
+
+  useEffect(() => {
+    const initialize = async () => {
+      await refIdb.current.initialize();
+
+      const credential = await refIdb.current.getCredential();
+      const preferences = await refIdb.current.getPreferences();
+      setCredential(credential);
+      setPreferences(preferences);
+    };
+    initialize();
+  }, []);
+
+  useEffect(() => {
+    const backend = new backendClass(params.owner, params.repo, credential);
+    setBackend(backend);
+  }, [params.owner, params.repo, credential]);
 
   return (
-    <Storage>
-      <PathMatch>
-        <Match pattern="https://:provider/:owner/:repo">
-          {({ provider, owner, repo }) => (
-            <DataSource provider={provider} owner={owner} repo={repo}>
-              <Explorer onChange={onChangeTab}>
-                {tab === 'auth' && <Auth />}
-                {/*
-                    <Tab isOpen={tab === 'search'}>
-                      <Search />
-                    </Tab>
-                    <DataSource.Consumer>
-                      {({ dataSource }) => (
-                        <Tab isOpen={tab === 'tree'}>
-                          <Match pattern={dataSource.prURLPattern}>pr</Match>
-                          <Match pattern={dataSource.commitURLPattern}>
-                            commit
-                          </Match>
-                          <Match pattern={dataSource.treeURLPattern}>tree</Match>
-                          <Match pattern={dataSource.fallbackURLPattern}>
-                            fallback
-                          </Match>
-                        </Tab>
-                      )}
-                    </DataSource.Consumer>
-                    <DataSource.Consumer>
-                      {({ pr, commit, head, defaultBranch }) => (
-                        <Tab isOpen={tab === 'tree'}>
-                          {pr && <PullRequest pr={pr} />}
-                          {commit && <Commit commit={commit} />}
-                          {!pr && !commit && <Head head={head || defaultBranch} />}
-                        </Tab>
-                      )}
-                    </DataSource.Consumer>
-                */}
-              </Explorer>
-            </DataSource>
-          )}
-        </Match>
-      </PathMatch>
-    </Storage>
+    <AppContext.Provider
+      value={{
+        backend,
+        credential,
+        preferences,
+        async setCredential(credential) {
+          await refIdb.current.saveCredential(credential);
+          setCredential(credential);
+        },
+        async setPreferences(preferences) {
+          await refIdb.current.savePreferences(preferences);
+          setPreferences(preferences);
+        }
+      }}
+    >
+      {preferences && backend && <Explorer />}
+    </AppContext.Provider>
   );
 };
 

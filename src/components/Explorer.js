@@ -2,8 +2,8 @@ import React, { useRef, useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import styled, { createGlobalStyle } from 'styled-components';
 import useMouseDragging from '../hooks/useMouseDragging';
-import useStorage from '../hooks/useStorage';
 import { Key, Search, Settings } from './icons';
+import { AppContext } from './App';
 
 const Wrapper = styled.div`
   background-color: #21242a;
@@ -94,7 +94,9 @@ const SideWrapper = styled.div`
 `;
 
 const Explorer = props => {
-  const { preferences, setPreferences } = useStorage();
+  const { preferences, setPreferences } = useContext(AppContext);
+  const x2 = useContext(AppContext);
+  console.log(x2);
   const [contentWidth, setContentWidth] = useState(preferences.contentWidth);
   const [isHidden, setIsHidden] = useState(
     preferences.contentWidth < props.minResizeWidth
@@ -129,7 +131,7 @@ const Explorer = props => {
   return (
     <Wrapper>
       {isHidden && (
-        <ToggleButton value="Open" onClick={e => setIsHidden(false)} />
+        <ToggleButton value='Open' onClick={e => setIsHidden(false)} />
       )}
       {!isHidden && (
         <ContentWrapper
