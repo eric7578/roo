@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import React, { useRef, useState, useContext, useLayoutEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled, { createGlobalStyle } from 'styled-components';
 import useMouseDragging from '../hooks/useMouseDragging';
@@ -93,16 +93,29 @@ const SideWrapper = styled.div`
   flex: 1;
 `;
 
-const Explorer = props => {
-  const preferences = useContext(Preferences);
+export const ViewModes = {
+  BROWSING: Symbol('browsinng'),
+  SEARCH: Symbol('search'),
+  CREDENTIALS: Symbol('credentials'),
+  PREFERENCES: Symbol('preferences')
+};
+
+export default function Explorer({
+  minResizeWidth,
+  viewMode,
+  onChangeViewMode,
+  icons,
+  children
+}) {
+  const [preferences, setPreferences] = useContext(Preferences);
   const [contentWidth, setContentWidth] = useState(preferences.contentWidth);
   const [isHidden, setIsHidden] = useState(
-    preferences.contentWidth < props.minResizeWidth
+    preferences.contentWidth < minResizeWidth
   );
   const resizeRef = useRef();
   const contentRef = useRef();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isHidden) {
       const { width } = contentRef.current.getBoundingClientRect();
       setContentWidth(width);
@@ -112,7 +125,7 @@ const Explorer = props => {
   useMouseDragging(
     {
       onDrag(e) {
-        const nextIsHidden = e.clientX < props.minResizeWidth;
+        const nextIsHidden = e.clientX < minResizeWidth;
         setIsHidden(nextIsHidden);
         if (!nextIsHidden) {
           setContentWidth(e.clientX);
@@ -136,48 +149,45 @@ const Explorer = props => {
           ref={contentRef}
           style={{
             width: contentWidth,
-            minWidth: isHidden ? undefined : props.minResizeWidth
+            minWidth: isHidden ? undefined : minResizeWidth
           }}
         >
           <ActivityBar>
             <IconList>
-              <Icon
-                selected={props.selected === 'search'}
-                onClick={e => props.onChange('search')}
-              >
-                <Search />
-              </Icon>
-              <Icon
-                selected={props.selected === 'auth'}
-                onClick={e => props.onChange('auth')}
-              >
-                <Key />
-              </Icon>
-              <Icon
-                selected={props.selected === 'settings'}
-                onClick={e => props.onChange('settings')}
-              >
-                <Settings />
-              </Icon>
+              {icons.map(([vm, IconFigure]) => (
+                <Icon
+                  key={vm.toString()}
+                  selected={viewMode === vm}
+                  onClick={e => {
+                    onChangeViewMode(vm === viewMode ? ViewModes.BROWSING : vm);
+                  }}
+                >
+                  <IconFigure />
+                </Icon>
+              ))}
             </IconList>
           </ActivityBar>
-          <SideWrapper>{props.children}</SideWrapper>
+          <SideWrapper>{children}</SideWrapper>
         </ContentWrapper>
       )}
       <BodyOffset offset={isHidden ? 0 : contentWidth} />
       <ResizeDetect ref={resizeRef} />
     </Wrapper>
   );
-};
+}
 
 Explorer.propTypes = {
   minResizeWidth: PropTypes.number,
   children: PropTypes.node,
-  onChange: PropTypes.func.isRequired
+  onChangeViewMode: PropTypes.func,
+  icons: PropTypes.array
 };
 
 Explorer.defaultProps = {
-  minResizeWidth: 300
+  minResizeWidth: 300,
+  icons: [
+    [ViewModes.SEARCH, Search],
+    [ViewModes.CREDENTIALS, Key],
+    [ViewModes.PREFERENCES, Settings]
+  ]
 };
-
-export default Explorer;
