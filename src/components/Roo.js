@@ -1,24 +1,26 @@
-import React, { useState } from 'react';
-import useStorage from './useStorage';
-import useBackend from './useBackend';
-import { Preferences, Backend } from './Context';
-import Explorer, { ViewModes } from './Explorer';
+import React, { useEffect, useState } from 'react';
+import Storage from './Storage';
+import Backend from './Backend';
+import Explorer from './Explorer';
+import Credentials from './Credentials';
+import Browser from './Browser';
+import { ViewModes } from '../enum';
 
 export default function Roo() {
-  const storage = useStorage('roo');
-  const backend = useBackend(storage);
-  const [viewMode, setViewMode] = useState(ViewModes.BROWSING);
-
   return (
-    storage.ready &&
-    backend.ready && (
-      <Preferences.Provider
-        value={[storage.preferences, storage.setPreferences]}
-      >
-        <Backend.Provider value={backend}>
-          <Explorer viewMode={viewMode} onChangeViewMode={setViewMode} />
-        </Backend.Provider>
-      </Preferences.Provider>
-    )
+    <Storage>
+      <Backend>
+        <Explorer>
+          {({ viewMode }) => (
+            <>
+              {viewMode === ViewModes.BROWSING && <Browser />}
+              {viewMode === ViewModes.CREDENTIALS && <Credentials />}
+              {viewMode === ViewModes.SEARCH}
+              {viewMode === ViewModes.PREFERENCES}
+            </>
+          )}
+        </Explorer>
+      </Backend>
+    </Storage>
   );
 }

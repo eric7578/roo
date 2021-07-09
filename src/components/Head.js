@@ -1,13 +1,13 @@
-import React, {useEffect, useContext} from 'react';
+import React, { useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import Tree from './Tree';
-import {DataSource} from '../context';
-import useTree, {ROOT_SHA} from '../hooks/useTree';
+import { DataSource } from '../context';
+import useTree, { ROOT_SHA } from '../hooks/useTree';
 import NavigateNode from './nodes/NavigateNode';
 
 const Head = props => {
-  const {state, expandTree, resetTree} = useTree();
-  const {getNodes, filepath} = useContext(DataSource);
+  const { state, expandTree, resetTree } = useTree();
+  const { getNodes, filepath } = useContext(DataSource);
 
   useEffect(() => {
     resetTree();
@@ -24,7 +24,7 @@ const Head = props => {
       }}
     />
   );
-}
+};
 
 Head.propTypes = {
   head: PropTypes.string.isRequired

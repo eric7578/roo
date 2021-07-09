@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const Input = styled.input.attrs({type: 'text'})`
+export const Input = styled.input.attrs({ type: 'text' })`
   background-color: #3c3c3c;
   border: none;
   color: #fafafa;
@@ -9,7 +9,9 @@ export const Input = styled.input.attrs({type: 'text'})`
   width: 100%;
 `;
 
-export const Button = styled.input.attrs({type: 'button'})`
+export const Button = styled.input.attrs(props => ({
+  type: props.type || 'button'
+}))`
   background: none;
   border: 1px solid #bebebe;
   border-radius: 50px;
@@ -19,7 +21,7 @@ export const Button = styled.input.attrs({type: 'button'})`
   font-size: 12px;
   line-height: 20px;
   outline: none;
-  transition: .2s;
+  transition: 0.2s;
 
   &:hover {
     border-color: #fafafa;

@@ -1,12 +1,12 @@
-import React, {useState, useContext, useEffect, useCallback} from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Tree from './Tree';
-import {DataSource} from '../context';
-import {UnknownFile, Text} from './icons';
+import { DataSource } from '../context';
+import { UnknownFile, Text } from './icons';
 import useTree from '../hooks/useTree';
 import NavigateNode from './nodes/NavigateNode';
-import {Input} from './Form';
+import { Input } from './Form';
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -37,7 +37,7 @@ const SearchCondition = styled.label`
     display: block;
     fill: #616161;
     height: 16px;
-    transition: .2s;
+    transition: 0.2s;
     width: 18px;
   }
 `;
@@ -48,10 +48,10 @@ const SearchInfo = styled.p`
 `;
 
 const Search = props => {
-  const {searchFile, searchCode} = useContext(DataSource);
+  const { searchFile, searchCode } = useContext(DataSource);
   const [flattenTree, setFlattenTree] = useState();
   const [searchText, setSearchText] = useState('');
-  const {state} = useTree(flattenTree);
+  const { state } = useTree(flattenTree);
   const [searchType, setSearchType] = useState('filename');
 
   const onSubmitSearch = () => {
@@ -62,11 +62,11 @@ const Search = props => {
         searchCode(searchText).then(setFlattenTree);
       }
     }
-  }
+  };
 
   const onChangeSearchType = e => {
     setSearchType(e.target.value);
-  }
+  };
 
   useEffect(() => {
     if (searchText) {
@@ -76,13 +76,15 @@ const Search = props => {
 
   const onChangeSearch = e => {
     setSearchText(e.target.value.trim());
-  }
+  };
 
   return (
     <Wrapper>
       <SearchWrapper>
         <Input
-          placeholder={searchType === 'filename' ? 'Search by path' : 'Search by content'}
+          placeholder={
+            searchType === 'filename' ? 'Search by path' : 'Search by content'
+          }
           value={searchText}
           onChange={onChangeSearch}
           onKeyUp={e => {
@@ -110,21 +112,18 @@ const Search = props => {
           <Text />
         </SearchCondition>
       </SearchWrapper>
-      {flattenTree && flattenTree.length === 0 &&
+      {flattenTree && flattenTree.length === 0 && (
         <SearchInfo>No results found.</SearchInfo>
-      }
-      {flattenTree && flattenTree.length > 0 &&
+      )}
+      {flattenTree && flattenTree.length > 0 && (
         <>
           <SearchInfo>{`${flattenTree.length} results.`}</SearchInfo>
-          <Tree
-            tree={state.tree}
-            blobNodeComponent={NavigateNode}
-          />
+          <Tree tree={state.tree} blobNodeComponent={NavigateNode} />
         </>
-      }
+      )}
     </Wrapper>
   );
-}
+};
 
 Search.propTypes = {
   delay: PropTypes.number

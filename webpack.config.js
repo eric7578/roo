@@ -1,9 +1,20 @@
 const path = require('path');
+const fs = require('fs');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ManifestTemplatePlugin = require('./tool/ManifestTemplatePlugin');
+const webpack = require('webpack');
 
 const SRC = path.resolve(__dirname, 'src');
 const BUILD = path.resolve(__dirname, 'build');
+
+function getAvailableBackends() {
+  const backendDir = path.join(__dirname, 'src', 'backends');
+  const backendDirs = fs.readdirSync(backendDir).filter(dir => {
+    const index = path.join(backendDir, dir, 'index.js');
+    return fs.existsSync(index);
+  });
+  return backendDirs;
+}
 
 module.exports = (env, argv) => {
   const isProd = env && env.production;
@@ -17,6 +28,9 @@ module.exports = (env, argv) => {
       filename: 'main.js'
     },
     plugins: [
+      new webpack.EnvironmentPlugin({
+        BACKENDS: getAvailableBackends()
+      }),
       new CopyWebpackPlugin({
         patterns: [
           {
@@ -44,9 +58,7 @@ module.exports = (env, argv) => {
         {
           test: /\.svg$/,
           exclude: /node_modules/,
-          use: {
-            loader: 'svg-react-loader'
-          }
+          use: ['@svgr/webpack']
         },
         {
           test: /\.css$/,

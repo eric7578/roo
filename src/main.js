@@ -1,3 +1,6 @@
+import { enableMapSet } from 'immer';
+enableMapSet();
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Roo from './components/Roo';

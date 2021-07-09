@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import styled, { createGlobalStyle } from 'styled-components';
 import useMouseDragging from '../hooks/useMouseDragging';
 import { Key, Search, Settings } from './icons';
-import { Preferences } from './Context';
+import { Context as StorageContext } from './Storage';
+import { ViewModes } from '../enum';
 
 const Wrapper = styled.div`
   background-color: #21242a;
@@ -93,25 +94,18 @@ const SideWrapper = styled.div`
   flex: 1;
 `;
 
-export const ViewModes = {
-  BROWSING: Symbol('browsinng'),
-  SEARCH: Symbol('search'),
-  CREDENTIALS: Symbol('credentials'),
-  PREFERENCES: Symbol('preferences')
-};
-
 export default function Explorer({
+  defaultViewMode,
   minResizeWidth,
-  viewMode,
-  onChangeViewMode,
   icons,
   children
 }) {
-  const [preferences, setPreferences] = useContext(Preferences);
+  const { preferences, setPreferences } = useContext(StorageContext);
   const [contentWidth, setContentWidth] = useState(preferences.contentWidth);
   const [isHidden, setIsHidden] = useState(
     preferences.contentWidth < minResizeWidth
   );
+  const [viewMode, setViewMode] = useState(defaultViewMode);
   const resizeRef = useRef();
   const contentRef = useRef();
 
@@ -159,7 +153,7 @@ export default function Explorer({
                   key={vm.toString()}
                   selected={viewMode === vm}
                   onClick={e => {
-                    onChangeViewMode(vm === viewMode ? ViewModes.BROWSING : vm);
+                    setViewMode(vm === viewMode ? ViewModes.BROWSING : vm);
                   }}
                 >
                   <IconFigure />
@@ -167,7 +161,7 @@ export default function Explorer({
               ))}
             </IconList>
           </ActivityBar>
-          <SideWrapper>{children}</SideWrapper>
+          <SideWrapper>{children({ viewMode })}</SideWrapper>
         </ContentWrapper>
       )}
       <BodyOffset offset={isHidden ? 0 : contentWidth} />
@@ -177,13 +171,14 @@ export default function Explorer({
 }
 
 Explorer.propTypes = {
+  defaultViewMode: PropTypes.symbol,
   minResizeWidth: PropTypes.number,
-  children: PropTypes.node,
-  onChangeViewMode: PropTypes.func,
+  children: PropTypes.func,
   icons: PropTypes.array
 };
 
 Explorer.defaultProps = {
+  defaultViewMode: ViewModes.BROWSING,
   minResizeWidth: 300,
   icons: [
     [ViewModes.SEARCH, Search],

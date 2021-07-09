@@ -1,7 +1,8 @@
-import React, { useState, useReducer, useCallback } from 'react';
+import React, { useState, useReducer, useCallback, useContext } from 'react';
 import styled from 'styled-components';
+import produce from 'immer';
 import { Input, Button } from './Form';
-import useStorage from '../hooks/useStorage';
+import { Context as StorageContext } from './Storage';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -120,86 +121,73 @@ const ButtonWrapper = styled.div`
   }
 `;
 
-const Auth = props => {
-  const { tokens, setTokens } = useStorage();
-  const [state, dispatch] = useReducer(reducer, tokens);
+export default function Credentials(props) {
+  const { tokens, setTokens } = useContext(StorageContext);
+  const [values, setValues] = useState(tokens);
+
+  const onAppend = useCallback(() => {
+    setValues(
+      produce(values => {
+        values.push({
+          selected: false,
+          value: '',
+          created: Date.now()
+        });
+      })
+    );
+  }, []);
+
+  const onRemove = useCallback(index => {
+    setValues(
+      produce(values => {
+        values.splice(index, 1);
+      })
+    );
+  }, []);
+
+  const onChange = useCallback((index, field, value) => {
+    setValues(
+      produce(values => {
+        values[index] = {
+          ...values[index],
+          [field]: value
+        };
+      })
+    );
+  }, []);
 
   return (
     <Form
-      autoComplete="off"
+      autoComplete='off'
       onSubmit={e => {
         e.preventDefault();
-        const tokens = state.filter(token => token.name && token.value);
-        setTokens(tokens);
+        setTokens(values.filter(token => !!token.value));
       }}
     >
       <AuthList>
-        {state.map((token, index) => (
+        {values.map((token, index) => (
           <AuthItem key={index}>
-            <Input
-              placeholder="Insert name..."
-              value={token.name}
-              onChange={e =>
-                dispatch({
-                  type: 'modify',
-                  index,
-                  field: 'name',
-                  value: e.target.value
-                })
-              }
-            />
             <Token
-              placeholder="Insert token..."
+              placeholder='Insert token...'
               value={token.value}
-              onChange={e =>
-                dispatch({
-                  type: 'modify',
-                  index,
-                  field: 'value',
-                  value: e.target.value
-                })
-              }
+              onChange={e => onChange(index, 'value', e.target.value)}
             />
             <DefaultLabel checked={token.selected}>
               <DefaultCheck
-                type="checkbox"
+                type='checkbox'
                 checked={token.selected}
-                onChange={e =>
-                  dispatch({
-                    type: 'modify',
-                    index,
-                    field: 'selected',
-                    value: e.target.checked
-                  })
-                }
+                onChange={e => onChange(index, 'selected', !token.selected)}
               />
               Default
             </DefaultLabel>
-            <Button
-              value="Remove"
-              onClick={e =>
-                dispatch({
-                  type: 'remove',
-                  index
-                })
-              }
-            />
+            <Button value='Remove' onClick={e => onRemove(index)} />
           </AuthItem>
         ))}
       </AuthList>
       <ButtonWrapper>
-        <Button type="submit" value="Save" />
-        <Button
-          value="Add token"
-          onClick={e =>
-            dispatch({
-              type: 'append'
-            })
-          }
-        />
+        <Button type='submit' value='Save' />
+        <Button value='Add token' onClick={onAppend} />
       </ButtonWrapper>
     </Form>
   );
-};
-
-export default Auth;
+}
