@@ -1,141 +1,112 @@
-import { useReducer, useEffect, useState } from 'react';
+import { useCallback, useReducer } from 'react';
+import produce from 'immer';
 
-const EXPAND_TREE = 'useTree/EXPAND_TREE';
-const INITIALIZE = 'useTree/INITIALIZE';
-
-export const ROOT_SHA = Symbol();
-export const FILE = Symbol();
-
-export default function useTree(flattenTree) {
-  const [state, dispatch] = useReducer(reducer, initialize());
-
-  const expandTree = (sha, tree) => dispatch({
-    type: EXPAND_TREE,
-    sha,
-    tree
-  });
-
-  const resetTree = () => dispatch({
-    type: INITIALIZE
-  });
-
-  useEffect(() => {
-    if (Array.isArray(flattenTree) && flattenTree.length > 0) {
-      const obj = {};
-      flattenTree.forEach(node => mutatePathIn(obj, node.path, node));
-      resetTree();
-      expandTree(ROOT_SHA, collapseToTree(obj));
+export default function useTree() {
+  const [state, dispatch] = useReducer(reducer, {
+    root: {
+      tree: {}
     }
-  }, [flattenTree]);
+  });
 
-  return {
-    state,
-    expandTree,
-    resetTree
-  };
+  const buildTree = useCallback((nodes, compressed = false) => {
+    dispatch({
+      type: 'buildTree',
+      nodes,
+      compressed
+    });
+  }, []);
+
+  const compressTree = useCallback(compressed => {
+    dispatch({
+      type: 'compressTree',
+      compressed
+    });
+  }, []);
+
+  const updateNode = useCallback((path, attrs) => {
+    dispatch({
+      type: 'updateNode',
+      path,
+      attrs
+    });
+  }, []);
+
+  return [
+    state.root.tree,
+    {
+      buildTree,
+      compressTree,
+      updateNode
+    }
+  ];
 }
 
 function reducer(state, action) {
   switch (action.type) {
-    case INITIALIZE:
-      return initialize();
-    case EXPAND_TREE:
-      action.tree.sort(sortNodes);
-      return appendTreeNode(state, action.sha, action.tree);
-    default:
-      return state;
-  }
-}
-
-function initialize() {
-  return {
-    sha: ROOT_SHA,
-    type: 'tree'
-  };
-}
-
-function sortNodes(n1, n2) {
-  return n1.type === 'tree' && n2.type !== 'tree' ? -1 : 1;
-}
-
-export function appendTreeNode(startNode, sha, tree) {
-  if (startNode.sha === sha) {
-    return {
-      ...startNode,
-      tree
-    };
-  }
-
-  if (!Array.isArray(startNode.tree)) {
-    return startNode;
-  }
-
-  const matchedIndex = startNode.tree.findIndex(n => n.sha === sha);
-  if (matchedIndex > -1) {
-    // replace current tree
-    const nextTree = [...startNode.tree];
-    nextTree[matchedIndex] = {
-      ...nextTree[matchedIndex],
-      tree
-    };
-    return {
-      ...startNode,
-      tree: nextTree
-    };
-  } else {
-    // find in each node
-    return {
-      ...startNode,
-      tree: startNode.tree.map(node => appendTreeNode(node, sha, tree))
-    };
-  }
-}
-
-export function mutatePathIn(obj, path, node) {
-  path.split('/').reduce((o, path, i, paths) => {
-    const isLast = paths.length === i + 1;
-    if (isLast) {
-      o[path] = {
-        ...node,
-        path,
-        [FILE]: true
-      };
-    } else if (!o.hasOwnProperty(path)) {
-      o[path] = {};
-    }
-    return o[path];
-  }, obj);
-  return obj;
-}
-
-export function collapseToTree(obj) {
-  const tree = Object.entries(obj).map(([path, node]) => {
-    if (node[FILE]) {
-      delete node[FILE];
+    case 'buildTree':
       return {
-        ...node,
-        type: 'blob',
-        path
+        ...state,
+        raw: [...action.nodes],
+        root: buildTree(formatNodes(action.nodes, action.compressed))
       };
-    }
 
-    const paths = [path];
-    let start = node;
-    while (Object.keys(start).length === 1) {
-      const key = Object.keys(start)[0];
-      if (start[key][FILE]) {
-        break;
+    case 'compressTree':
+      return {
+        ...state,
+        root: buildTree(formatNodes(state.raw, action.compressed))
+      };
+
+    case 'updateNode':
+      return {
+        ...state,
+        root: updateNode(state.root, action.path, action.attrs)
+      };
+  }
+
+  return state;
+}
+
+function formatNodes(nodes, compressed) {
+  if (compressed) {
+    return nodes;
+  } else {
+    return nodes.map(node => ({
+      ...node,
+      path: node.path.split('/')
+    }));
+  }
+}
+
+function buildTree(nodes) {
+  const root = {
+    tree: {}
+  };
+  for (const node of nodes) {
+    let treePt = root.tree;
+    node.path.forEach((path, index) => {
+      if (treePt.hasOwnProperty(path)) {
+        treePt = treePt[path].tree;
+      } else {
+        const nextTreePt = {
+          ...node,
+          tree: {}
+        };
+        treePt[path] = nextTreePt;
+        treePt = nextTreePt.tree;
       }
+    });
+  }
+  return root;
+}
 
-      paths.push(key);
-      start = start[key];
+function updateNode(root, path, attrs) {
+  return produce(root, patch => {
+    const node = path.reduce((node, p) => {
+      node = node.tree[p];
+      return node;
+    }, patch);
+    for (const [key, value] of Object.entries(attrs)) {
+      node[key] = value;
     }
-
-    return {
-      type: 'tree',
-      path: paths.join('/'),
-      tree: collapseToTree(start)
-    };
   });
-  return tree;
 }

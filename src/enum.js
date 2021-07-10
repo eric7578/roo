@@ -4,3 +4,9 @@ export const ViewModes = {
   CREDENTIALS: Symbol('credentials'),
   PREFERENCES: Symbol('preferences')
 };
+
+export const BrowsingModes = {
+  NONE: Symbol('none'),
+  TREE: Symbol('tree'),
+  DIFF: Symbol('diff')
+};

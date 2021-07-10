@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { pathToRegexp } from 'path-to-regexp';
 import produce from 'immer';
 import { Context as StorageContext } from './Storage';
+import { BrowsingModes } from '../enum';
 
 export const Context = createContext();
 
@@ -21,11 +22,12 @@ export default function Backend({ children }) {
           const selected = tokens.find(t => t.selected);
           token = selected?.value ?? '';
         }
-        pkg.loadModule(token).then(instance => {
+        pkg.loadModule(token).then(({ browser, ...rest }) => {
           setBackend({
-            ...instance,
-            ready: true,
-            params: matchPatterns(instance.patterns)
+            ...rest,
+            ...matchBrowser(browser),
+            browser,
+            ready: true
           });
         });
         return;
@@ -39,7 +41,9 @@ export default function Backend({ children }) {
         if (message.type === 'roo/locationChanged') {
           setBackend(
             produce(backend => {
-              backend.params = matchPatterns(backend.patterns);
+              const { browsingMode, params } = matchBrowser(backend.browser);
+              backend.browsingMode = browsingMode;
+              backend.params = params;
             })
           );
         }
@@ -57,19 +61,29 @@ export default function Backend({ children }) {
   );
 }
 
-function matchPatterns(patterns) {
-  const params = {};
-  for (const pattern of patterns) {
-    const keys = [];
-    const regexp = pathToRegexp(pattern, keys);
-    const matched = regexp.exec(window.location.pathname);
+function matchBrowser(browser) {
+  for (const [browsingMode, ...patterns] of browser) {
+    for (const pattern of patterns) {
+      const keys = [];
+      const regexp = pathToRegexp(pattern, keys);
+      const matched = regexp.exec(window.location.pathname);
 
-    if (matched) {
-      keys.forEach((key, idx) => {
-        params[key.name] = matched[idx + 1];
-      });
-      break;
+      if (matched) {
+        const params = keys.reduce((params, key, idx) => {
+          params[key.name] = matched[idx + 1];
+          return params;
+        }, {});
+
+        return {
+          browsingMode,
+          params
+        };
+      }
     }
   }
-  return params;
+
+  return {
+    browsingMode: BrowsingModes.NONE,
+    params: {}
+  };
 }

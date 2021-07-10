@@ -51,7 +51,7 @@ const Search = props => {
   const { searchFile, searchCode } = useContext(DataSource);
   const [flattenTree, setFlattenTree] = useState();
   const [searchText, setSearchText] = useState('');
-  const { state } = useTree(flattenTree);
+  // const { state } = useTree(flattenTree);
   const [searchType, setSearchType] = useState('filename');
 
   const onSubmitSearch = () => {

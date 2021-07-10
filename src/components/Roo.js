@@ -13,7 +13,7 @@ export default function Roo() {
         <Explorer>
           {({ viewMode }) => (
             <>
-              {viewMode === ViewModes.BROWSING && <Browser />}
+              <Browser visible={viewMode === ViewModes.BROWSING} />
               {viewMode === ViewModes.CREDENTIALS && <Credentials />}
               {viewMode === ViewModes.SEARCH}
               {viewMode === ViewModes.PREFERENCES}
