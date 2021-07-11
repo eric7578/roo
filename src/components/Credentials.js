@@ -1,47 +1,8 @@
-import React, { useState, useReducer, useCallback, useContext } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import styled from 'styled-components';
 import produce from 'immer';
 import { Input, Button } from './Form';
 import { Context as StorageContext } from './Storage';
-
-function reducer(state, action) {
-  switch (action.type) {
-    case 'append':
-      return [
-        ...state,
-        {
-          name: '',
-          value: '',
-          selected: false
-        }
-      ];
-
-    case 'remove':
-      return [
-        ...state.slice(0, action.index),
-        ...state.slice(action.index + 1)
-      ];
-
-    case 'modify':
-      if (action.field === 'selected' && action.value) {
-        return state.map((token, index) => {
-          return {
-            ...token,
-            [action.field]: index === action.index
-          };
-        });
-      }
-
-      state[action.index] = {
-        ...state[action.index],
-        [action.field]: action.value
-      };
-      return [...state];
-
-    default:
-      return state;
-  }
-}
 
 const Form = styled.form`
   display: flex;

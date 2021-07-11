@@ -1,4 +1,4 @@
-import {useEffect, useRef} from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function useMouseDragging(callbacks, ref, bufferX = 0) {
   const prevClientX = useRef();
@@ -7,13 +7,13 @@ export default function useMouseDragging(callbacks, ref, bufferX = 0) {
     prevClientX.current = e.clientX;
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
-  }
+  };
 
   const onMouseUp = e => {
     window.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('mouseup', onMouseUp);
     callbacks.onStop(e);
-  }
+  };
 
   const onMouseMove = e => {
     e.preventDefault();
@@ -23,7 +23,7 @@ export default function useMouseDragging(callbacks, ref, bufferX = 0) {
       callbacks.onDrag(e);
       prevClientX.current = e.clientX;
     }
-  }
+  };
 
   useEffect(() => {
     ref.current.addEventListener('mousedown', onMouseDown);
@@ -32,6 +32,6 @@ export default function useMouseDragging(callbacks, ref, bufferX = 0) {
       ref.current.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
-    }
+    };
   }, [ref.current]);
 }
