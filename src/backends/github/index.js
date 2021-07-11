@@ -34,6 +34,20 @@ export async function loadModule(token) {
         `/repos/${owner}/${repo}/git/trees/${head}?recursive=1`
       );
       return resp.data.tree;
+    },
+    async search({ owner, repo }, { keyword, type }) {
+      let query;
+      switch (type) {
+        case 'filename':
+          query = `repo:${owner}/${repo}+filename:${keyword}`;
+          break;
+
+        case 'code':
+          query = `repo:${owner}/${repo}+${keyword}+in:file`;
+          break;
+      }
+      const resp = await github.get(`/search/code?q=${query}`);
+      return resp.data.items;
     }
   };
 }

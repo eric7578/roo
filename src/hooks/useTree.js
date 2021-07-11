@@ -8,10 +8,11 @@ export default function useTree() {
     }
   });
 
-  const buildTree = useCallback(nodes => {
+  const buildTree = useCallback((nodes, nodeData) => {
     dispatch({
       type: 'buildTree',
-      nodes
+      nodes,
+      nodeData
     });
   }, []);
 
@@ -37,7 +38,7 @@ function reducer(state, action) {
     case 'buildTree':
       return {
         ...state,
-        root: buildTree(action.nodes)
+        root: buildTree(action.nodes, action.nodeData)
       };
 
     case 'updateNode':
@@ -50,20 +51,21 @@ function reducer(state, action) {
   return state;
 }
 
-function buildTree(nodes) {
+function buildTree(nodes, nodeData) {
   const root = {
     tree: {}
   };
   for (const node of nodes) {
     let treePt = root.tree;
     const path = node.path.split('/');
-    path.forEach(p => {
+    path.forEach((p, index) => {
       if (treePt.hasOwnProperty(p)) {
         treePt = treePt[p].tree;
       } else {
         const nextTreePt = {
           ...node,
-          path,
+          ...nodeData,
+          path: path.slice(0, index + 1),
           tree: {}
         };
         treePt[p] = nextTreePt;

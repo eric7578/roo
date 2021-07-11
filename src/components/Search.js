@@ -2,15 +2,11 @@ import React, { useState, useContext, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Tree from './Tree';
-import { DataSource } from '../context';
 import { UnknownFile, Text } from './icons';
+import { Context as BackendContext } from './Backend';
 import useTree from '../hooks/useTree';
-import NavigateNode from './nodes/NavigateNode';
+import useDebounceCallback from '../hooks/useDebounceCallback';
 import { Input } from './Form';
-
-const Wrapper = styled.div`
-  padding: 18px;
-`;
 
 const SearchWrapper = styled.div`
   align-items: center;
@@ -47,57 +43,60 @@ const SearchInfo = styled.p`
   margin: 10px 0;
 `;
 
-const Search = props => {
-  const { searchFile, searchCode } = useContext(DataSource);
-  const [flattenTree, setFlattenTree] = useState();
-  const [searchText, setSearchText] = useState('');
-  // const { state } = useTree(flattenTree);
-  const [searchType, setSearchType] = useState('filename');
+export default function Search({ searchDelay }) {
+  const { params, search } = useContext(BackendContext);
+  const [tree, { buildTree, updateNode }] = useTree();
+  const [searchData, setSearchData] = useState({
+    keyword: '',
+    type: 'filename'
+  });
 
-  const onSubmitSearch = () => {
-    if (searchText) {
-      if (searchType === 'filename') {
-        searchFile(searchText).then(setFlattenTree);
-      } else {
-        searchCode(searchText).then(setFlattenTree);
-      }
-    }
-  };
+  const onChangeSearchType = useCallback(e => {
+    setSearchData(searchData => ({
+      ...searchData,
+      type: e.target.value
+    }));
+  }, []);
 
-  const onChangeSearchType = e => {
-    setSearchType(e.target.value);
-  };
+  const onChangeSearch = useDebounceCallback(e => {
+    setSearchData(searchData => ({
+      ...searchData,
+      keyword: e.target.value.trim()
+    }));
+  }, searchDelay);
+
+  const onExpand = useCallback(node => {
+    updateNode(node.path, { open: !node.open });
+  }, []);
 
   useEffect(() => {
-    if (searchText) {
-      onSubmitSearch();
+    if (searchData.keyword) {
+      search(params, searchData).then(nodes =>
+        buildTree(nodes, {
+          open: true
+        })
+      );
     }
-  }, [searchType]);
+  }, [searchData, params]);
 
-  const onChangeSearch = e => {
-    setSearchText(e.target.value.trim());
-  };
-
+  const numFounded = Object.keys(tree).length;
   return (
-    <Wrapper>
+    <>
       <SearchWrapper>
         <Input
           placeholder={
-            searchType === 'filename' ? 'Search by path' : 'Search by content'
+            searchData.type === 'filename'
+              ? 'Search by path'
+              : 'Search by content'
           }
-          value={searchText}
+          defaultValue={searchData.keyword}
           onChange={onChangeSearch}
-          onKeyUp={e => {
-            if (e.keyCode === 13) {
-              onSubmitSearch();
-            }
-          }}
         />
         <SearchCondition>
           <input
             type='radio'
             value='filename'
-            checked={searchType === 'filename'}
+            checked={searchData.type === 'filename'}
             onChange={onChangeSearchType}
           />
           <UnknownFile />
@@ -106,31 +105,28 @@ const Search = props => {
           <input
             type='radio'
             value='code'
-            checked={searchType === 'code'}
+            checked={searchData.type === 'code'}
             onChange={onChangeSearchType}
           />
           <Text />
         </SearchCondition>
       </SearchWrapper>
-      {flattenTree && flattenTree.length === 0 && (
-        <SearchInfo>No results found.</SearchInfo>
-      )}
-      {flattenTree && flattenTree.length > 0 && (
+      {searchData.keyword && (
         <>
-          <SearchInfo>{`${flattenTree.length} results.`}</SearchInfo>
-          <Tree tree={state.tree} blobNodeComponent={NavigateNode} />
+          <SearchInfo>
+            {numFounded ? `${numFounded} results.` : `No results found.`}
+          </SearchInfo>
+          {numFounded > 0 && <Tree tree={tree} onExpand={onExpand} />}
         </>
       )}
-    </Wrapper>
+    </>
   );
-};
+}
 
 Search.propTypes = {
-  delay: PropTypes.number
+  searchDelay: PropTypes.number
 };
 
 Search.defaultProps = {
-  delay: 300
+  searchDelay: 300
 };
-
-export default Search;
