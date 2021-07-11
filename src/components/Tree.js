@@ -32,7 +32,9 @@ const KnownFile = styled.i`
   margin-right: 5px;
 `;
 
-export default function Tree({ tree, compressSingleDir, onExpand }) {
+export default function Tree(props) {
+  const { tree, compressSingleDir, onExpand, onNavigate } = props;
+
   const treeNodes = useMemo(
     () =>
       Object.entries(tree)
@@ -83,10 +85,23 @@ export default function Tree({ tree, compressSingleDir, onExpand }) {
     <TreeNodesList>
       {treeNodes.map(node => (
         <li key={node.name}>
-          <TreeNode {...node} onClick={e => onExpand(node)} />
-          {!node.isFile && node.open && (
-            <Tree tree={node.tree} onExpand={onExpand} />
-          )}
+          <NodePath
+            onClick={e => {
+              if (node.isFile) {
+                onNavigate(node);
+              } else {
+                onExpand(node);
+              }
+            }}
+          >
+            {node.isFile ? (
+              <FileNode icon={node.icon} />
+            ) : (
+              <FolderNode open={node.open} />
+            )}
+            {node.name}
+          </NodePath>
+          {!node.isFile && node.open && <Tree {...props} tree={node.tree} />}
         </li>
       ))}
     </TreeNodesList>
@@ -94,26 +109,23 @@ export default function Tree({ tree, compressSingleDir, onExpand }) {
 }
 
 Tree.propTypes = {
-  tree: PropTypes.object,
+  tree: PropTypes.object.isRequired,
   compressSingleDir: PropTypes.bool,
-  onExpand: PropTypes.func
+  onNavigate: PropTypes.func
 };
 
 Tree.defaultProps = {
-  compressSingleDir: false
+  compressSingleDir: true
 };
 
-function TreeNode({ icon, isFile, open, name, ...rest }) {
-  return (
-    <NodePath {...rest}>
-      {isFile &&
-        (icon ? (
-          <KnownFile className={icon} />
-        ) : (
-          <UnknownFile style={{ width: 18, marginLeft: -3 }} />
-        ))}
-      {!isFile && (open ? <FolderOpen /> : <Folder />)}
-      {name}
-    </NodePath>
+function FileNode({ icon }) {
+  return icon ? (
+    <KnownFile className={icon} />
+  ) : (
+    <UnknownFile style={{ width: 18, marginLeft: -3 }} />
   );
+}
+
+function FolderNode({ open }) {
+  return open ? <FolderOpen /> : <Folder />;
 }

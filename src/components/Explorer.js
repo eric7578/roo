@@ -92,7 +92,7 @@ const Icon = styled.li`
 
 const SideWrapper = styled.div`
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
 `;
 
 export default function Explorer({
