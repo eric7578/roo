@@ -8,18 +8,10 @@ export default function useTree() {
     }
   });
 
-  const buildTree = useCallback((nodes, compressed = false) => {
+  const buildTree = useCallback(nodes => {
     dispatch({
       type: 'buildTree',
-      nodes,
-      compressed
-    });
-  }, []);
-
-  const compressTree = useCallback(compressed => {
-    dispatch({
-      type: 'compressTree',
-      compressed
+      nodes
     });
   }, []);
 
@@ -35,7 +27,6 @@ export default function useTree() {
     state.root.tree,
     {
       buildTree,
-      compressTree,
       updateNode
     }
   ];
@@ -46,14 +37,7 @@ function reducer(state, action) {
     case 'buildTree':
       return {
         ...state,
-        raw: [...action.nodes],
-        root: buildTree(formatNodes(action.nodes, action.compressed))
-      };
-
-    case 'compressTree':
-      return {
-        ...state,
-        root: buildTree(formatNodes(state.raw, action.compressed))
+        root: buildTree(action.nodes)
       };
 
     case 'updateNode':
@@ -66,32 +50,23 @@ function reducer(state, action) {
   return state;
 }
 
-function formatNodes(nodes, compressed) {
-  if (compressed) {
-    return nodes;
-  } else {
-    return nodes.map(node => ({
-      ...node,
-      path: node.path.split('/')
-    }));
-  }
-}
-
 function buildTree(nodes) {
   const root = {
     tree: {}
   };
   for (const node of nodes) {
     let treePt = root.tree;
-    node.path.forEach((path, index) => {
-      if (treePt.hasOwnProperty(path)) {
-        treePt = treePt[path].tree;
+    const path = node.path.split('/');
+    path.forEach(p => {
+      if (treePt.hasOwnProperty(p)) {
+        treePt = treePt[p].tree;
       } else {
         const nextTreePt = {
           ...node,
+          path,
           tree: {}
         };
-        treePt[path] = nextTreePt;
+        treePt[p] = nextTreePt;
         treePt = nextTreePt.tree;
       }
     });

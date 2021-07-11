@@ -32,16 +32,42 @@ const KnownFile = styled.i`
   margin-right: 5px;
 `;
 
-export default function Tree({ tree, onExpand }) {
+export default function Tree({ tree, compressSingleDir, onExpand }) {
   const treeNodes = useMemo(
     () =>
       Object.entries(tree)
-        .map(([name, node]) => ({
-          ...node,
-          icon: getClassWithColor(name),
-          isFile: Object.keys(node.tree).length === 0,
-          name
-        }))
+        .map(([name, node]) => {
+          let children = Object.keys(node.tree);
+          let numChildren = children.length;
+
+          if (compressSingleDir) {
+            const compressPath = [name];
+            while (true) {
+              // compress node is node has only one children
+              const childrenPath = Object.keys(node.tree);
+              if (childrenPath.length !== 1) {
+                break;
+              }
+
+              // compress if the next child is not file
+              const childPath = childrenPath[0];
+              if (Object.keys(node.tree[childPath].tree).length === 0) {
+                break;
+              }
+
+              compressPath.push(childPath);
+              node = node.tree[childPath];
+            }
+            name = compressPath.join('/');
+          }
+
+          return {
+            ...node,
+            icon: getClassWithColor(name),
+            isFile: numChildren === 0,
+            name
+          };
+        })
         .sort((n1, n2) => {
           if (n1.isFile === n2.isFile) {
             return n1.name.localeCompare(n2.name);
@@ -50,7 +76,7 @@ export default function Tree({ tree, onExpand }) {
           }
           return 0;
         }),
-    [tree]
+    [tree, compressSingleDir]
   );
 
   return (
@@ -69,7 +95,12 @@ export default function Tree({ tree, onExpand }) {
 
 Tree.propTypes = {
   tree: PropTypes.object,
+  compressSingleDir: PropTypes.bool,
   onExpand: PropTypes.func
+};
+
+Tree.defaultProps = {
+  compressSingleDir: false
 };
 
 function TreeNode({ icon, isFile, open, name, ...rest }) {
