@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Tree from './Tree';
-import { UnknownFile, Text } from './icons';
+import { SearchFile, SearchText } from './icons';
 import { Context as BackendContext } from './Backend';
 import useTree from '../hooks/useTree';
 import useDebounceCallback from '../hooks/useDebounceCallback';
@@ -99,7 +99,7 @@ export default function Search({ searchDelay }) {
             checked={searchData.type === 'filename'}
             onChange={onChangeSearchType}
           />
-          <UnknownFile />
+          <SearchFile />
         </SearchCondition>
         <SearchCondition>
           <input
@@ -108,7 +108,7 @@ export default function Search({ searchDelay }) {
             checked={searchData.type === 'code'}
             onChange={onChangeSearchType}
           />
-          <Text />
+          <SearchText />
         </SearchCondition>
       </SearchWrapper>
       {searchData.keyword && (
