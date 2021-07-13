@@ -8,8 +8,13 @@ import 'file-icons-js/css/style.css';
 
 const TreeNodesList = styled.ul`
   list-style-type: none;
-  margin: 0 0 0 15px;
   padding: 0;
+  margin: 0;
+`;
+
+const TreeNode = styled.li`
+  padding-left: ${props => props.depth * 15}px;
+  background-color: ${props => (props.focused ? '#0d1117' : 'none')};
 `;
 
 const NodePath = styled.div`
@@ -84,37 +89,47 @@ export default function Tree(props) {
   return (
     <TreeNodesList>
       {treeNodes.map(node => (
-        <li key={node.name}>
-          <NodePath
-            onClick={e => {
-              if (node.isFile) {
-                onNavigate(node);
-              } else {
-                onExpand(node);
-              }
-            }}
+        <React.Fragment key={node.name}>
+          <TreeNode
+            depth={props.depth}
+            focused={node.fullPath === props.focusPath}
           >
-            {node.isFile ? (
-              <FileNode icon={node.icon} />
-            ) : (
-              <FolderNode open={node.open} />
-            )}
-            {node.name}
-          </NodePath>
-          {!node.isFile && node.open && <Tree {...props} tree={node.tree} />}
-        </li>
+            <NodePath
+              onClick={e => {
+                if (node.isFile) {
+                  onNavigate(node);
+                } else {
+                  onExpand(node);
+                }
+              }}
+            >
+              {node.isFile ? (
+                <FileNode icon={node.icon} />
+              ) : (
+                <FolderNode open={node.open} />
+              )}
+              {node.name}
+            </NodePath>
+          </TreeNode>
+          {!node.isFile && node.open && (
+            <Tree {...props} depth={props.depth + 1} tree={node.tree} />
+          )}
+        </React.Fragment>
       ))}
     </TreeNodesList>
   );
 }
 
 Tree.propTypes = {
+  depth: PropTypes.number,
   tree: PropTypes.object.isRequired,
+  focusPath: PropTypes.string,
   compressSingleDir: PropTypes.bool,
   onNavigate: PropTypes.func
 };
 
 Tree.defaultProps = {
+  depth: 0,
   compressSingleDir: true
 };
 

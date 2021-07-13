@@ -62,10 +62,12 @@ function buildTree(nodes, nodeData) {
       if (treePt.hasOwnProperty(p)) {
         treePt = treePt[p].tree;
       } else {
+        const pathSegs = path.slice(0, index + 1);
         const nextTreePt = {
           ...node,
           ...nodeData,
-          path: path.slice(0, index + 1),
+          path: pathSegs,
+          fullPath: pathSegs.join('/'),
           tree: {}
         };
         treePt[p] = nextTreePt;
