@@ -83,7 +83,7 @@ function matchBrowser(browser) {
   }
 
   return {
-    browsingMode: BrowsingModes.NONE,
+    browsingMode: null,
     params: {}
   };
 }

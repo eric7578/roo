@@ -6,7 +6,6 @@ export const ViewModes = {
 };
 
 export const BrowsingModes = {
-  NONE: Symbol('none'),
   TREE: Symbol('tree'),
   DIFF: Symbol('diff')
 };
