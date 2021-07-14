@@ -6,6 +6,9 @@ import Key from './round-vpn_key-24px.svg';
 import Settings from './round-settings-24px.svg';
 import SearchText from './manage_search_black_24dp.svg';
 import SearchFile from './plagiarism_black_24dp.svg';
+import FileAddition from './add_box_black_24dp.svg';
+import FileDeletion from './disabled_by_default_black_24dp.svg';
+import FileUpdate from './iso_black_24dp.svg';
 
 export {
   FolderOpen,
@@ -15,5 +18,8 @@ export {
   Key,
   Settings,
   SearchText,
-  SearchFile
+  SearchFile,
+  FileAddition,
+  FileDeletion,
+  FileUpdate
 };

@@ -15,18 +15,19 @@ export async function loadModule(token) {
 
   let defaultBranch;
 
-  //github.com/eric7578/roo/blob/master/src/background/browserEvent.js
-
   https: return {
     browser: [
       [
         BrowsingModes.TREE,
         '/:owner/:repo',
         '/:owner/:repo/tree/:head/(.*)',
-        '/:owner/:repo/blob/:head/:path*',
-        '/:owner/:repo/commit/:commit'
+        '/:owner/:repo/blob/:head/:path*'
       ],
-      [BrowsingModes.DIFF, '/:owner/:repo/pull/:pr']
+      [
+        BrowsingModes.DIFF,
+        '/:owner/:repo/pull/:pr/(.*)',
+        '/:owner/:repo/commit/:commit'
+      ]
     ],
     async loadTree({ owner, repo, head }) {
       if (!head) {
@@ -37,6 +38,25 @@ export async function loadModule(token) {
         `/repos/${owner}/${repo}/git/trees/${head}?recursive=1`
       );
       return resp.data.tree;
+    },
+    async loadDiff({ owner, repo, pr, commit }) {
+      let files;
+      if (pr) {
+        const resp = await github.get(
+          `/repos/${owner}/${repo}/pulls/${pr}/files`
+        );
+        files = resp.data;
+      } else if (commit) {
+        const resp = await github.get(
+          `/repos/${owner}/${repo}/commits/${commit}`
+        );
+        files = resp.data.files;
+      }
+
+      return files.map(o => {
+        o.path = o.filename;
+        return o;
+      });
     },
     async search({ owner, repo }, { keyword, type }) {
       let query;

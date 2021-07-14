@@ -1,10 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { getClassWithColor } from 'file-icons-js';
-import { Folder, FolderOpen, UnknownFile } from './icons';
-
-import 'file-icons-js/css/style.css';
 
 const TreeNodesList = styled.ul`
   list-style-type: none;
@@ -17,28 +13,8 @@ const TreeNode = styled.li`
   background-color: ${props => (props.focused ? '#0d1117' : 'none')};
 `;
 
-const NodePath = styled.div`
-  align-items: center;
-  display: flex;
-  color: #fafafa;
-  cursor: pointer;
-  white-space: nowrap;
-
-  svg {
-    fill: #fff;
-    margin-right: 5px;
-    min-width: 16px;
-    width: 16px;
-  }
-`;
-
-const KnownFile = styled.i`
-  font-style: normal;
-  margin-right: 5px;
-`;
-
 export default function Tree(props) {
-  const { tree, compressSingleDir, onExpand, onNavigate } = props;
+  const { tree, compressSingleDir, children } = props;
 
   const treeNodes = useMemo(
     () =>
@@ -70,7 +46,6 @@ export default function Tree(props) {
 
           return {
             ...node,
-            icon: getClassWithColor(name),
             isFile: numChildren === 0,
             name
           };
@@ -94,22 +69,7 @@ export default function Tree(props) {
             depth={props.depth}
             focused={node.fullPath === props.focusPath}
           >
-            <NodePath
-              onClick={e => {
-                if (node.isFile) {
-                  onNavigate(node);
-                } else {
-                  onExpand(node);
-                }
-              }}
-            >
-              {node.isFile ? (
-                <FileNode icon={node.icon} />
-              ) : (
-                <FolderNode open={node.open} />
-              )}
-              {node.name}
-            </NodePath>
+            {children({ node })}
           </TreeNode>
           {!node.isFile && node.open && (
             <Tree {...props} depth={props.depth + 1} tree={node.tree} />
@@ -124,23 +84,11 @@ Tree.propTypes = {
   depth: PropTypes.number,
   tree: PropTypes.object.isRequired,
   focusPath: PropTypes.string,
-  compressSingleDir: PropTypes.bool,
-  onNavigate: PropTypes.func
+  children: PropTypes.func.isRequired,
+  compressSingleDir: PropTypes.bool
 };
 
 Tree.defaultProps = {
   depth: 0,
   compressSingleDir: true
 };
-
-function FileNode({ icon }) {
-  return icon ? (
-    <KnownFile className={icon} />
-  ) : (
-    <UnknownFile style={{ width: 18, marginLeft: -3 }} />
-  );
-}
-
-function FolderNode({ open }) {
-  return open ? <FolderOpen /> : <Folder />;
-}

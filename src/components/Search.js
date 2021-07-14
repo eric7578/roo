@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Tree from './Tree';
+import { TreeNode } from './TreeNodes';
 import { SearchFile, SearchText } from './icons';
 import { Context as BackendContext } from './Backend';
 import useTree from '../hooks/useTree';
@@ -45,7 +46,7 @@ const SearchInfo = styled.p`
 
 export default function Search({ searchDelay }) {
   const { params, search } = useContext(BackendContext);
-  const [tree, { buildTree, updateNode }] = useTree();
+  const [tree, { buildTree, updateNode, navigate }] = useTree();
   const [searchData, setSearchData] = useState({
     keyword: '',
     type: 'filename'
@@ -64,6 +65,13 @@ export default function Search({ searchDelay }) {
       keyword: e.target.value.trim()
     }));
   }, searchDelay);
+
+  const onNavigate = useCallback(
+    node => {
+      navigate(params, node);
+    },
+    [params]
+  );
 
   const onExpand = useCallback(node => {
     updateNode(node.path, { open: !node.open });
@@ -116,7 +124,17 @@ export default function Search({ searchDelay }) {
           <SearchInfo>
             {numFounded ? `${numFounded} results.` : `No results found.`}
           </SearchInfo>
-          {numFounded > 0 && <Tree tree={tree} onExpand={onExpand} />}
+          {numFounded > 0 && (
+            <Tree tree={tree}>
+              {({ node }) => (
+                <TreeNode
+                  node={node}
+                  onNavigate={onNavigate}
+                  onExpand={onExpand}
+                />
+              )}
+            </Tree>
+          )}
         </>
       )}
     </>
