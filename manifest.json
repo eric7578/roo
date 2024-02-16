@@ -1,11 +1,15 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "roo",
   "description": "github viewer",
-  "version": "1.0",
-  "permissions": [
-    "activeTab",
-    "tabs",
-    "management"
+  "permissions": ["activeTab", "tabs", "management"],
+  "action": {
+    "default_popup": "src/popup/index.html"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [],
+      "matches": []
+    }
   ]
 }

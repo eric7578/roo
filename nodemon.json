@@ -1,0 +1,9 @@
+{
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "watch": ["src", "utils", "vite.config.js", "manifest.json", "manifest.dev.json"],
+  "ext": "jsx,css,html,js,json",
+  "ignore": ["src/**/*.spec.js"],
+  "exec": "vite build"
+}

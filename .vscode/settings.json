@@ -1,7 +1,7 @@
 {
-  "editor.formatOnSave": false,
-  // Enable per-language
-  "[javascript]": {
-    "editor.formatOnSave": true
-  }
+  "editor.detectIndentation": false,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
